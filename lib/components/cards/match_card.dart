@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/models/match_model.dart';
-import '../../screens/chat_room_screen.dart';
+import '../../screens/chat/chat_room_screen.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import '../../utils/themes/gradients.dart';
@@ -23,7 +23,7 @@ class MatchCard extends StatelessWidget {
       onTap: () {
         AppRoutes.navigateTo(
           context,
-          MatchRoomScreen(match: match),
+          ChatRoomScreen(match: match),
         );
       },
       child: Container(
@@ -62,6 +62,31 @@ class MatchCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
+                  // Fan Count Badge
+                  if (match.fanCount > 0)
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.accentBlue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColors.accentBlue.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.people, size: 12, color: AppColors.accentBlue),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${match.fanCount}',
+                            style: AppTextStyles.caption.copyWith(
+                              color: AppColors.accentBlue,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   // Live indicator or time
                   if (match.isLive)
@@ -123,7 +148,7 @@ class MatchCard extends StatelessWidget {
                               ),
                             if (match.isLive || match.isFinished)
                               Text(
-                                match.statusDisplay,
+                                match.elapsedTime ?? match.statusDisplay,
                                 style: AppTextStyles.caption.copyWith(
                                   color: match.isLive
                                       ? AppColors.liveGreen
@@ -171,7 +196,7 @@ class MatchCard extends StatelessWidget {
                         onTap: () {
                           AppRoutes.navigateTo(
                             context,
-                            MatchRoomScreen(match: match),
+                            ChatRoomScreen(match: match),
                           );
                         },
                         borderRadius: BorderRadius.circular(12),

@@ -30,8 +30,6 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final matchProvider = Provider.of<MatchProvider>(context, listen: false);
       matchProvider.loadMatches();
-      matchProvider.loadLiveMatches();
-      matchProvider.loadTodayMatches();
     });
   }
 

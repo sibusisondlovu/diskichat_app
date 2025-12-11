@@ -69,8 +69,6 @@ class _MatchesScreenState extends State<MatchesScreen> {
                 return RefreshIndicator(
                   onRefresh: () async {
                     matchProvider.loadMatches();
-                    matchProvider.loadLiveMatches();
-                    matchProvider.loadTodayMatches();
                   },
                   color: AppColors.accentBlue,
                   child: ListView.builder(

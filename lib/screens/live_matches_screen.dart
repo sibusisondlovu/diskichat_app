@@ -50,7 +50,7 @@ class LiveMatchesScreen extends StatelessWidget {
 
           return RefreshIndicator(
             onRefresh: () async {
-              matchProvider.loadLiveMatches();
+              matchProvider.loadMatches();
             },
             color: AppColors.accentBlue,
             child: ListView.builder(

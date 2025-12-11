@@ -26,30 +26,44 @@ class _WelcomeAuthScreenState extends State<WelcomeAuthScreen> {
 
   void _handleRegistration() async {
     final mobile = _mobileController.text.trim();
+    debugPrint('DEBUG: _handleRegistration called with mobile: $mobile');
+
     if (mobile.length < 10) {
       _showToast("Please enter a valid mobile number", icon: Icons.error);
       return;
     }
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    debugPrint('DEBUG: Calling signInWithMobile...');
     final success = await authProvider.signInWithMobile(mobile);
+    debugPrint('DEBUG: signInWithMobile returned: $success');
 
     if (success) {
-      if (!mounted) return;
+      if (!mounted) {
+        debugPrint('DEBUG: Widget not mounted after login!');
+        return;
+      }
       
+      final profile = authProvider.userProfile;
+      debugPrint('DEBUG: User Profile: $profile');
+      debugPrint('DEBUG: Favorite Team: ${profile?.favoriteTeam}');
+
       // Check if profile is incomplete (e.g. no favorite team)
-      if (authProvider.userProfile?.favoriteTeam == null) {
+      if (profile?.favoriteTeam == null) {
+        debugPrint('DEBUG: Navigating to ProfileWizardScreen');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const ProfileWizardScreen()),
         );
       } else {
+        debugPrint('DEBUG: Navigating to HomeScreen');
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const HomeScreen()),
         );
       }
     } else {
+      debugPrint('DEBUG: showing error toast: ${authProvider.errorMessage}');
       if (!mounted) return;
       _showToast(authProvider.errorMessage ?? "Login failed", icon: Icons.error);
     }

@@ -15,6 +15,8 @@ class MatchModel {
   final String? venue;
   final String? apiMatchId;
   final Map<String, dynamic>? aiPrediction;
+  final int fanCount;
+  final String? elapsedTime;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -33,6 +35,8 @@ class MatchModel {
     this.venue,
     this.apiMatchId,
     this.aiPrediction,
+    this.fanCount = 0,
+    this.elapsedTime,
     required this.createdAt,
     this.updatedAt,
   });
@@ -54,6 +58,8 @@ class MatchModel {
       venue: map['venue'],
       apiMatchId: map['apiMatchId'],
       aiPrediction: map['aiPrediction'],
+      fanCount: map['fanCount'] ?? 0,
+      elapsedTime: map['elapsedTime'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -76,6 +82,8 @@ class MatchModel {
       'venue': venue,
       'apiMatchId': apiMatchId,
       'aiPrediction': aiPrediction,
+      'fanCount': fanCount,
+      'elapsedTime': elapsedTime,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
@@ -97,6 +105,8 @@ class MatchModel {
     String? venue,
     String? apiMatchId,
     Map<String, dynamic>? aiPrediction,
+    int? fanCount,
+    String? elapsedTime,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -115,6 +125,8 @@ class MatchModel {
       venue: venue ?? this.venue,
       apiMatchId: apiMatchId ?? this.apiMatchId,
       aiPrediction: aiPrediction ?? this.aiPrediction,
+      fanCount: fanCount ?? this.fanCount,
+      elapsedTime: elapsedTime ?? this.elapsedTime,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -35,14 +35,14 @@ class AuthService {
     
     // Create preliminary profile
     if (credential.user != null) {
-      await _createUserProfile(credential.user!);
+      await createUserProfile(credential.user!);
     }
     
     return credential;
   }
 
   // Create user profile in Firestore
-  Future<void> _createUserProfile(User user) async {
+  Future<void> createUserProfile(User user) async {
     final userModel = UserModel(
       id: user.uid,
       username: 'user_${user.uid.substring(0, 8)}',

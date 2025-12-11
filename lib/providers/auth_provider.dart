@@ -87,6 +87,14 @@ class AuthProvider extends ChangeNotifier {
       }
 
       await loadUserProfile();
+      
+      // Safety Check: If profile is still null (e.g. deleted or failed creation), recreate it
+      if (_userProfile == null && _user != null) {
+        debugPrint('DEBUG: User profile not found, recreating...');
+        await _authService.createUserProfile(_user!);
+        await loadUserProfile();
+      }
+
       _isLoading = false;
       notifyListeners();
       return true;

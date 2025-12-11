@@ -73,4 +73,12 @@ class TeamsConstants {
   ];
 
   static const String defaultTeamLogo = 'lib/assets/images/diskichat_icon.png';
+
+  static String getLogoPath(String teamName) {
+    final team = pslTeams.firstWhere(
+      (element) => element['name'] == teamName,
+      orElse: () => {},
+    );
+    return team['logo'] ?? defaultTeamLogo;
+  }
 }

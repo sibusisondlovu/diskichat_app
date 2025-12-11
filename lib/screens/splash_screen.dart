@@ -4,6 +4,8 @@ import '../providers/auth_provider.dart';
 import '../utils/themes/app_colors.dart';
 import '../utils/themes/text_styles.dart';
 import '../utils/routes.dart';
+import '../services/storage_service.dart';
+import 'auth/welcome_auth_screen.dart';
 import 'onboarding_screen.dart';
 import 'home_screen.dart';
 
@@ -24,6 +26,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _navigateToNext() async {
     debugPrint('DEBUG: Starting _navigateToNext');
+    
+    // Initialize Storage Service (if not already)
+    await StorageService().init();
+    
     await Future.delayed(const Duration(seconds: 2));
     debugPrint('DEBUG: Timer completed');
 
@@ -36,8 +42,17 @@ class _SplashScreenState extends State<SplashScreen> {
       debugPrint('DEBUG: Navigating to HomeScreen');
       AppRoutes.navigateReplace(context, const HomeScreen());
     } else {
-      debugPrint('DEBUG: Navigating to OnboardingScreen');
-      AppRoutes.navigateReplace(context, const OnboardingScreen());
+      // Check if onboarding is already done
+      final bool onboardingDone = StorageService().isOnboardingDone;
+      debugPrint('DEBUG: Onboarding done: $onboardingDone');
+
+      if (onboardingDone) {
+        debugPrint('DEBUG: Navigating to WelcomeAuthScreen');
+        AppRoutes.navigateReplace(context, const WelcomeAuthScreen());
+      } else {
+        debugPrint('DEBUG: Navigating to OnboardingScreen');
+        AppRoutes.navigateReplace(context, const OnboardingScreen());
+      }
     }
   }
 
