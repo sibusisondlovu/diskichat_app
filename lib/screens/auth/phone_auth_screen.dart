@@ -3,6 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/routes.dart';
+import '../../utils/themes/app_colors.dart';
+import '../../utils/themes/text_styles.dart';
+import '../../components/buttons/gradient_button.dart';
+import '../../components/inputs/custom_text_field.dart';
+import 'otp_verification_screen.dart';
 
 class PhoneAuthScreen extends StatefulWidget {
   const PhoneAuthScreen({super.key});

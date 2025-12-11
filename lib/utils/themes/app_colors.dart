@@ -14,4 +14,7 @@ class AppColors {
   static const Color primaryBlue = Color(0xFF0D47A1);
   static const Color textMuted = Colors.grey;
   static const Color errorRed = Colors.redAccent;
+  static const Color liveGreen = Color(0xFF00C853);
+  static const Color successGreen = Color(0xFF00C853);
+  static const Color inputBackground = Color(0xFF2B3A4A);
 }

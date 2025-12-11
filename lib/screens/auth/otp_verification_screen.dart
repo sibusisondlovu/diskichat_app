@@ -6,7 +6,7 @@ import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import '../../utils/routes.dart';
 import '../../components/buttons/gradient_button.dart';
-import '../home/home_screen.dart';
+import '../home_screen.dart';
 
 class OTPVerificationScreen extends StatefulWidget {
   final String phoneNumber;
