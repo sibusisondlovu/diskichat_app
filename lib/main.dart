@@ -5,9 +5,15 @@ import 'app.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('DEBUG: WidgetsFlutterBinding initialized');
 
   // Initialize Firebase
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+    debugPrint('DEBUG: Firebase initialized successfully');
+  } catch (e) {
+    debugPrint('DEBUG: Firebase initialization failed: $e');
+  }
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
@@ -25,5 +31,6 @@ void main() async {
     ),
   );
 
+  debugPrint('DEBUG: Calling runApp');
   runApp(const DiskichatApp());
 }

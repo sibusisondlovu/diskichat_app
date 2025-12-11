@@ -18,19 +18,25 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('DEBUG: SplashScreen initState');
     _navigateToNext();
   }
 
   Future<void> _navigateToNext() async {
+    debugPrint('DEBUG: Starting _navigateToNext');
     await Future.delayed(const Duration(seconds: 2));
+    debugPrint('DEBUG: Timer completed');
 
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    debugPrint('DEBUG: Auth check - isAuthenticated: ${authProvider.isAuthenticated}');
 
     if (authProvider.isAuthenticated) {
+      debugPrint('DEBUG: Navigating to HomeScreen');
       AppRoutes.navigateReplace(context, const HomeScreen());
     } else {
+      debugPrint('DEBUG: Navigating to OnboardingScreen');
       AppRoutes.navigateReplace(context, const OnboardingScreen());
     }
   }
