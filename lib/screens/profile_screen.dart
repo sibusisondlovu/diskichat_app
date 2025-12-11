@@ -9,7 +9,7 @@ import '../../utils/routes.dart';
 import '../../components/badges/rank_badge.dart';
 import '../../components/avatars/custom_avatar.dart';
 import 'edit_profile_screen.dart';
-import 'auth/phone_auth_screen.dart';
+import 'auth/welcome_auth_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -236,7 +236,7 @@ class ProfileScreen extends StatelessWidget {
                     if (context.mounted) {
                       AppRoutes.navigateAndRemoveUntil(
                         context,
-                        const PhoneAuthScreen(),
+                        const WelcomeAuthScreen(),
                       );
                     }
                   },

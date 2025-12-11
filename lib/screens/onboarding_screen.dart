@@ -3,7 +3,7 @@ import '../utils/themes/app_colors.dart';
 import '../utils/themes/text_styles.dart';
 import '../utils/routes.dart';
 import '../components/buttons/gradient_button.dart';
-import 'auth/phone_auth_screen.dart';
+import 'auth/welcome_auth_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -176,7 +176,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _goToAuth() {
-    AppRoutes.navigateReplace(context, const PhoneAuthScreen());
+    AppRoutes.navigateReplace(context, const WelcomeAuthScreen());
   }
 }
 

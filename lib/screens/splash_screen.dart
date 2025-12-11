@@ -62,10 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   ],
                 ),
               ),
-              child: const Icon(
-                Icons.chat_bubble_rounded,
-                size: 60,
-                color: AppColors.textWhite,
+              child: Image.asset('lib/assets/images/diskichat_icon.png'
               ),
             ),
             const SizedBox(height: 24),

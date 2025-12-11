@@ -53,63 +53,44 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Send OTP
-  Future<bool> sendOTP(String phoneNumber) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    bool success = false;
-
-    await _authService.sendOTP(
-      phoneNumber: phoneNumber,
-      onCodeSent: (verificationId) {
-        _verificationId = verificationId;
-        success = true;
-        _isLoading = false;
-        notifyListeners();
-      },
-      onError: (error) {
-        _errorMessage = error;
-        success = false;
-        _isLoading = false;
-        notifyListeners();
-      },
-    );
-
-    return success;
-  }
-
-  // Verify OTP
-  Future<bool> verifyOTP(String otp) async {
-    if (_verificationId == null) {
-      _errorMessage = 'Verification ID not found';
-      notifyListeners();
-      return false;
-    }
-
+  // Sign in with Mobile (Pseudo-Email)
+  Future<bool> signInWithMobile(String mobileNumber) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final userCredential = await _authService.verifyOTP(
-        verificationId: _verificationId!,
-        otp: otp,
-      );
+      // Create pseudo-email
+      // Remove any spaces or special chars from mobile just in case
+      final cleanMobile = mobileNumber.replaceAll(RegExp(r'\s+'), '');
+      final email = '$cleanMobile@diskichatapp.app';
+      const password = 'DefaultPassword123!'; // Hardcoded for prototype as requested
 
-      if (userCredential != null) {
-        _user = userCredential.user;
-        await loadUserProfile();
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      } else {
-        _errorMessage = 'Invalid OTP';
-        _isLoading = false;
-        notifyListeners();
-        return false;
+      try {
+        // Attempt Sign In
+        UserCredential credential = await _authService.signInWithEmail(
+          email: email,
+          password: password,
+        );
+        _user = credential.user;
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found' || e.code == 'invalid-credential') {
+          // User doesn't exist, create account
+          UserCredential credential = await _authService.signUpWithEmail(
+            email: email,
+            password: password,
+          );
+          _user = credential.user;
+        } else {
+          rethrow;
+        }
       }
+
+      await loadUserProfile();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;

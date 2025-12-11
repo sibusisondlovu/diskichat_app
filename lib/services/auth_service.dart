@@ -12,60 +12,33 @@ class AuthService {
   // Auth state changes stream
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Send OTP to phone number
-  Future<String> sendOTP({
-    required String phoneNumber,
-    required Function(String verificationId) onCodeSent,
-    required Function(String error) onError,
+  // Sign in with Email/Password
+  Future<UserCredential> signInWithEmail({
+    required String email,
+    required String password,
   }) async {
-    try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        timeout: const Duration(seconds: 60),
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Auto verification (Android only)
-          await _auth.signInWithCredential(credential);
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          onError(e.message ?? 'Verification failed');
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          onCodeSent(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Auto-resolution timed out
-        },
-      );
-      return 'OTP sent successfully';
-    } catch (e) {
-      onError(e.toString());
-      return 'Error: ${e.toString()}';
-    }
+    return await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
   }
 
-  // Verify OTP and sign in
-  Future<UserCredential?> verifyOTP({
-    required String verificationId,
-    required String otp,
+  // Sign up with Email/Password
+  Future<UserCredential> signUpWithEmail({
+    required String email,
+    required String password,
   }) async {
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: otp,
-      );
-
-      UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-      // Check if new user and create profile
-      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
-        await _createUserProfile(userCredential.user!);
-      }
-
-      return userCredential;
-    } catch (e) {
-      print('Error verifying OTP: $e');
-      return null;
+    UserCredential credential = await _auth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    
+    // Create preliminary profile
+    if (credential.user != null) {
+      await _createUserProfile(credential.user!);
     }
+    
+    return credential;
   }
 
   // Create user profile in Firestore
