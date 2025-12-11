@@ -10,6 +10,7 @@ import '../../components/chat/message_bubble.dart';
 import '../../components/chat/message_input.dart';
 import '../../components/chat/quick_reactions.dart';
 import '../../components/common/loading_indicator.dart';
+import '../components/quick_reactions_component.dart';
 
 class MatchRoomScreen extends StatefulWidget {
   final MatchModel match;

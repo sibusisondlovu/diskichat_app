@@ -1,0 +1,228 @@
+Analyzing diskichat_app...                                      
+
+  error • The method 'UserProvider' isn't defined for the type 'DiskichatApp' • lib/app.dart:18:47 • undefined_method
+  error • Undefined name 'AppTheme' • lib/app.dart:25:16 • undefined_identifier
+  error • Target of URI doesn't exist: '../../utils/themes/gradients.dart' • lib/components/button_component.dart:4:8 • uri_does_not_exist
+  error • Undefined name 'AppGradients' • lib/components/button_component.dart:31:21 • undefined_identifier
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/button_component.dart:35:43 • deprecated_member_use
+  error • The getter 'button' isn't defined for the type 'AppTextStyles' • lib/components/button_component.dart:67:42 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/custom_avatar_component.dart:50:34 • deprecated_member_use
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/empty_state_component.dart:37:34 • undefined_getter
+  error • The getter 'h3' isn't defined for the type 'AppTextStyles' • lib/components/empty_state_component.dart:45:36 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/empty_state_component.dart:53:36 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/live_indicator_component.dart:53:34 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/live_indicator_component.dart:63:34 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/live_indicator_component.dart:64:32 • undefined_getter
+  error • Target of URI doesn't exist: '../../utils/themes/gradients.dart' • lib/components/match_card_component.dart:5:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../utils/helpers/time_helper.dart' • lib/components/match_card_component.dart:6:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../badges/live_indicator.dart' • lib/components/match_card_component.dart:8:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../screens/chat/match_room_screen.dart' • lib/components/match_card_component.dart:9:8 • uri_does_not_exist
+  error • The method 'MatchRoomScreen' isn't defined for the type 'MatchCard' • lib/components/match_card_component.dart:25:11 • undefined_method
+  error • Undefined name 'AppGradients' • lib/components/match_card_component.dart:30:21 • undefined_identifier
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/match_card_component.dart:34:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/match_card_component.dart:46:46 • deprecated_member_use
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:58:44 • undefined_getter
+  error • The name 'LiveIndicator' isn't a class • lib/components/match_card_component.dart:67:27 • creation_with_non_type
+  error • Undefined name 'TimeHelper' • lib/components/match_card_component.dart:70:23 • undefined_identifier
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:71:44 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:95:52 • undefined_getter
+  error • The getter 'scoreMedium' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:114:54 • undefined_getter
+  error • The getter 'h3' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:119:54 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/match_card_component.dart:120:52 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/match_card_component.dart:128:51 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/match_card_component.dart:129:51 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:144:52 • undefined_getter
+  error • Undefined name 'AppGradients' • lib/components/match_card_component.dart:164:33 • undefined_identifier
+  error • The method 'MatchRoomScreen' isn't defined for the type 'MatchCard' • lib/components/match_card_component.dart:173:29 • undefined_method
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/match_card_component.dart:188:52 • undefined_getter
+  error • Target of URI doesn't exist: '../../utils/helpers/time_helper.dart' • lib/components/message_bubble_component.dart:8:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../utils/helpers/rank_helper.dart' • lib/components/message_bubble_component.dart:9:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../utils/constants/rank_constants.dart' • lib/components/message_bubble_component.dart:10:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../badges/rank_badge.dart' • lib/components/message_bubble_component.dart:11:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../avatars/custom_avatar.dart' • lib/components/message_bubble_component.dart:12:8 • uri_does_not_exist
+  error • The method 'CustomAvatar' isn't defined for the type 'MessageBubble' • lib/components/message_bubble_component.dart:42:11 • undefined_method
+  error • The getter 'messageUsername' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:59:44 • undefined_getter
+  error • The method 'RankBadge' isn't defined for the type 'MessageBubble' • lib/components/message_bubble_component.dart:63:23 • undefined_method
+  error • Undefined name 'RankHelper' • lib/components/message_bubble_component.dart:64:31 • undefined_identifier
+  error • Undefined name 'TimeHelper' • lib/components/message_bubble_component.dart:69:23 • undefined_identifier
+  error • The getter 'messageTime' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:70:44 • undefined_getter
+  error • The getter 'messageText' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:80:40 • undefined_getter
+  error • The getter 'upvote' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:92:40 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:97:44 • undefined_getter
+  error • The getter 'downvote' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:106:40 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/message_bubble_component.dart:116:55 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/message_bubble_component.dart:168:35 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/message_bubble_component.dart:187:42 • deprecated_member_use
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:192:34 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:209:25 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:210:25 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:215:30 • undefined_getter
+  error • Invalid constant value • lib/components/message_bubble_component.dart:223:24 • invalid_constant
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:223:34 • undefined_getter
+  error • The getter 'h4' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:239:42 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/message_bubble_component.dart:240:40 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/message_bubble_component.dart:245:42 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/message_input_component.dart:23:30 • undefined_getter
+  error • The getter 'inputBackground' isn't defined for the type 'AppColors' • lib/components/message_input_component.dart:35:36 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/message_input_component.dart:40:40 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/message_input_component.dart:45:46 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/message_input_component.dart:46:40 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/message_input_component.dart:67:44 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/components/quick_reactions_component.dart:28:38 • deprecated_member_use
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/quick_reactions_component.dart:31:30 • undefined_getter
+  error • The getter 'inputBackground' isn't defined for the type 'AppColors' • lib/components/quick_reactions_component.dart:46:38 • undefined_getter
+  error • Target of URI doesn't exist: '../../utils/constants/rank_constants.dart' • lib/components/rank_badge_component.dart:2:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../utils/helpers/rank_helper.dart' • lib/components/rank_badge_component.dart:3:8 • uri_does_not_exist
+  error • Undefined class 'UserRank' • lib/components/rank_badge_component.dart:7:9 • undefined_class
+  error • Undefined name 'RankHelper' • lib/components/rank_badge_component.dart:20:19 • undefined_identifier
+  error • Undefined name 'RankHelper' • lib/components/rank_badge_component.dart:21:18 • undefined_identifier
+  error • Undefined name 'RankHelper' • lib/components/rank_badge_component.dart:22:19 • undefined_identifier
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/components/rank_badge_component.dart:45:34 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/room_header_component.dart:25:36 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/room_header_component.dart:35:36 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/room_header_component.dart:36:49 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/room_header_component.dart:43:36 • undefined_getter
+  error • Invalid constant value • lib/components/room_header_component.dart:60:26 • invalid_constant
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/room_header_component.dart:60:36 • undefined_getter
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/components/room_header_component.dart:68:36 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/text_field_component.dart:48:34 • undefined_getter
+  error • The getter 'bodyLarge' isn't defined for the type 'AppTextStyles' • lib/components/text_field_component.dart:64:32 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/components/text_field_component.dart:67:38 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/components/text_field_component.dart:68:32 • undefined_getter
+  error • The getter 'inputBackground' isn't defined for the type 'AppColors' • lib/components/text_field_component.dart:71:34 • undefined_getter
+  error • Invalid constant value • lib/components/text_field_component.dart:99:24 • invalid_constant
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/components/text_field_component.dart:99:34 • undefined_getter
+  error • Invalid constant value • lib/components/text_field_component.dart:106:24 • invalid_constant
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/components/text_field_component.dart:106:34 • undefined_getter
+   info • The private field _userVotes could be 'final' • lib/providers/chat_provider.dart:16:24 • prefer_final_fields
+  error • Target of URI doesn't exist: '../../components/chat/room_header.dart' • lib/screens/chat_room_screen.dart:8:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/chat/message_bubble.dart' • lib/screens/chat_room_screen.dart:9:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/chat/message_input.dart' • lib/screens/chat_room_screen.dart:10:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/chat/quick_reactions.dart' • lib/screens/chat_room_screen.dart:11:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/common/loading_indicator.dart' • lib/screens/chat_room_screen.dart:12:8 • uri_does_not_exist
+  error • The method 'RoomHeader' isn't defined for the type '_MatchRoomScreenState' • lib/screens/chat_room_screen.dart:58:16 • undefined_method
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/chat_room_screen.dart:83:48 • deprecated_member_use
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/chat_room_screen.dart:86:40 • undefined_getter
+  error • Invalid constant value • lib/screens/chat_room_screen.dart:96:30 • invalid_constant
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/screens/chat_room_screen.dart:96:40 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/chat_room_screen.dart:101:44 • undefined_getter
+  error • The name 'LoadingIndicator' isn't a class • lib/screens/chat_room_screen.dart:116:32 • creation_with_non_type
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/chat_room_screen.dart:129:44 • undefined_getter
+  error • The getter 'bodyLarge' isn't defined for the type 'AppTextStyles' • lib/screens/chat_room_screen.dart:134:48 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/chat_room_screen.dart:135:46 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/chat_room_screen.dart:141:48 • undefined_getter
+  error • The method 'MessageBubble' isn't defined for the type '_MatchRoomScreenState' • lib/screens/chat_room_screen.dart:158:28 • undefined_method
+  error • The method 'MessageInput' isn't defined for the type '_MatchRoomScreenState' • lib/screens/chat_room_screen.dart:177:11 • undefined_method
+warning • Unused import: '../../utils/themes/text_styles.dart' • lib/screens/edit_profile_screen.dart:5:8 • unused_import
+  error • Target of URI doesn't exist: '../../components/buttons/gradient_button.dart' • lib/screens/edit_profile_screen.dart:7:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/inputs/custom_text_field.dart' • lib/screens/edit_profile_screen.dart:8:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/avatars/custom_avatar.dart' • lib/screens/edit_profile_screen.dart:9:8 • uri_does_not_exist
+  error • The getter 'successGreen' isn't defined for the type 'AppColors' • lib/screens/edit_profile_screen.dart:174:38 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/home_screen.dart:47:35 • deprecated_member_use
+  error • Target of URI doesn't exist: '../../components/cards/match_card.dart' • lib/screens/live_matches_screen.dart:6:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/common/loading_indicator.dart' • lib/screens/live_matches_screen.dart:7:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/common/empty_state.dart' • lib/screens/live_matches_screen.dart:8:8 • uri_does_not_exist
+  error • Invalid constant value • lib/screens/live_matches_screen.dart:26:24 • invalid_constant
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/screens/live_matches_screen.dart:26:34 • undefined_getter
+  error • The name 'LoadingIndicator' isn't a class • lib/screens/live_matches_screen.dart:38:26 • creation_with_non_type
+  error • The method 'EmptyState' isn't defined for the type 'LiveMatchesScreen' • lib/screens/live_matches_screen.dart:44:20 • undefined_method
+  error • The method 'MatchCard' isn't defined for the type 'LiveMatchesScreen' • lib/screens/live_matches_screen.dart:62:26 • undefined_method
+  error • Target of URI doesn't exist: '../../components/cards/match_card.dart' • lib/screens/matches_screen.dart:6:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/common/loading_indicator.dart' • lib/screens/matches_screen.dart:7:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/common/empty_state.dart' • lib/screens/matches_screen.dart:8:8 • uri_does_not_exist
+  error • The name 'LoadingIndicator' isn't a class • lib/screens/matches_screen.dart:56:32 • creation_with_non_type
+  error • The method 'EmptyState' isn't defined for the type '_MatchesScreenState' • lib/screens/matches_screen.dart:62:26 • undefined_method
+  error • The method 'MatchCard' isn't defined for the type '_MatchesScreenState' • lib/screens/matches_screen.dart:82:32 • undefined_method
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/matches_screen.dart:131:65 • deprecated_member_use
+  error • Invalid constant value • lib/screens/matches_screen.dart:145:26 • invalid_constant
+  error • The getter 'liveGreen' isn't defined for the type 'AppColors' • lib/screens/matches_screen.dart:145:36 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/screens/matches_screen.dart:151:36 • undefined_getter
+  error • Target of URI doesn't exist: '../components/buttons/gradient_button.dart' • lib/screens/onboarding_screen.dart:5:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: 'auth/phone_auth_screen.dart' • lib/screens/onboarding_screen.dart:6:8 • uri_does_not_exist
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/screens/onboarding_screen.dart:59:40 • undefined_getter
+  error • The method 'GradientButton' isn't defined for the type '_OnboardingScreenState' • lib/screens/onboarding_screen.dart:97:21 • undefined_method
+  error • The method 'GradientButton' isn't defined for the type '_OnboardingScreenState' • lib/screens/onboarding_screen.dart:101:21 • undefined_method
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/onboarding_screen.dart:128:40 • deprecated_member_use
+  error • The getter 'bodyLarge' isn't defined for the type 'AppTextStyles' • lib/screens/onboarding_screen.dart:147:34 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/onboarding_screen.dart:166:25 • undefined_getter
+  error • The name 'PhoneAuthScreen' isn't a class • lib/screens/onboarding_screen.dart:179:46 • creation_with_non_type
+  error • Target of URI doesn't exist: '../../components/buttons/gradient_button.dart' • lib/screens/otp_verification_screen.dart:8:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../home/home_screen.dart' • lib/screens/otp_verification_screen.dart:9:8 • uri_does_not_exist
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/otp_verification_screen.dart:66:49 • deprecated_member_use
+  error • Invalid constant value • lib/screens/otp_verification_screen.dart:81:24 • invalid_constant
+  error • The getter 'h2' isn't defined for the type 'AppTextStyles' • lib/screens/otp_verification_screen.dart:81:38 • undefined_getter
+  error • The getter 'bodyLarge' isn't defined for the type 'AppTextStyles' • lib/screens/otp_verification_screen.dart:88:38 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/screens/otp_verification_screen.dart:109:42 • undefined_getter
+  error • The method 'GradientButton' isn't defined for the type '_OTPVerificationScreenState' • lib/screens/otp_verification_screen.dart:122:26 • undefined_method
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:139:44 • undefined_getter
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:142:46 • undefined_getter
+  error • Invalid constant value • lib/screens/otp_verification_screen.dart:149:38 • invalid_constant
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:149:48 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/otp_verification_screen.dart:156:54 • undefined_getter
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:157:52 • undefined_getter
+  error • The getter 'h2' isn't defined for the type 'AppTextStyles' • lib/screens/otp_verification_screen.dart:186:30 • undefined_getter
+  error • The getter 'inputBackground' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:190:32 • undefined_getter
+  error • Invalid constant value • lib/screens/otp_verification_screen.dart:226:28 • invalid_constant
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:226:38 • undefined_getter
+  error • The name 'HomeScreen' isn't a class • lib/screens/otp_verification_screen.dart:237:15 • creation_with_non_type
+  error • Invalid constant value • lib/screens/otp_verification_screen.dart:250:28 • invalid_constant
+  error • The getter 'successGreen' isn't defined for the type 'AppColors' • lib/screens/otp_verification_screen.dart:250:38 • undefined_getter
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:28:24 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:50:27 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:51:27 • undefined_identifier
+  error • Invalid constant value • lib/screens/phone_auth_screen.dart:58:30 • invalid_constant
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:58:30 • undefined_identifier
+  error • Invalid constant value • lib/screens/phone_auth_screen.dart:68:26 • invalid_constant
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:68:26 • undefined_identifier
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:75:26 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:76:28 • undefined_identifier
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:85:26 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:98:32 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:104:40 • undefined_identifier
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:105:32 • undefined_identifier
+  error • The method 'CustomTextField' isn't defined for the type '_PhoneAuthScreenState' • lib/screens/phone_auth_screen.dart:126:30 • undefined_method
+  error • The method 'GradientButton' isn't defined for the type '_PhoneAuthScreenState' • lib/screens/phone_auth_screen.dart:153:28 • undefined_method
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:166:26 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:167:28 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:181:36 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:184:38 • undefined_identifier
+  error • Invalid constant value • lib/screens/phone_auth_screen.dart:191:40 • invalid_constant
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:191:40 • undefined_identifier
+  error • Undefined name 'AppTextStyles' • lib/screens/phone_auth_screen.dart:198:42 • undefined_identifier
+  error • Undefined name 'AppColors' • lib/screens/phone_auth_screen.dart:199:44 • undefined_identifier
+  error • The method 'OTPVerificationScreen' isn't defined for the type '_PhoneAuthScreenState' • lib/screens/phone_auth_screen.dart:229:9 • undefined_method
+  error • Target of URI doesn't exist: '../../utils/helpers/rank_helper.dart' • lib/screens/profile_screen.dart:6:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../utils/constants/rank_constants.dart' • lib/screens/profile_screen.dart:7:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/badges/rank_badge.dart' • lib/screens/profile_screen.dart:9:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../../components/avatars/custom_avatar.dart' • lib/screens/profile_screen.dart:10:8 • uri_does_not_exist
+  error • Target of URI doesn't exist: '../auth/phone_auth_screen.dart' • lib/screens/profile_screen.dart:12:8 • uri_does_not_exist
+  error • Invalid constant value • lib/screens/profile_screen.dart:45:28 • invalid_constant
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/profile_screen.dart:45:38 • undefined_getter
+  error • The getter 'h3' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:50:42 • undefined_getter
+  error • Undefined name 'RankHelper' • lib/screens/profile_screen.dart:57:24 • undefined_identifier
+  error • Undefined name 'RankHelper' • lib/screens/profile_screen.dart:58:32 • undefined_identifier
+  error • Undefined name 'RankConstants' • lib/screens/profile_screen.dart:62:32 • undefined_identifier
+  error • The getter 'primaryBlue' isn't defined for the type 'AppColors' • lib/screens/profile_screen.dart:74:35 • undefined_getter
+  error • The method 'CustomAvatar' isn't defined for the type 'ProfileScreen' • lib/screens/profile_screen.dart:87:27 • undefined_method
+  error • The method 'RankBadge' isn't defined for the type 'ProfileScreen' • lib/screens/profile_screen.dart:94:36 • undefined_method
+  error • The getter 'h2' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:104:46 • undefined_getter
+  error • The getter 'bodyMedium' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:112:46 • undefined_getter
+  error • Undefined name 'RankHelper' • lib/screens/profile_screen.dart:132:36 • undefined_identifier
+  error • Undefined name 'UserRank' • lib/screens/profile_screen.dart:140:35 • undefined_identifier
+  error • Undefined name 'RankHelper' • lib/screens/profile_screen.dart:148:50 • undefined_identifier
+  error • Undefined name 'RankConstants' • lib/screens/profile_screen.dart:148:80 • undefined_identifier
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:149:56 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:153:56 • undefined_getter
+  error • The getter 'textMuted' isn't defined for the type 'AppColors' • lib/screens/profile_screen.dart:165:60 • undefined_getter
+  error • The getter 'errorRed' isn't defined for the type 'AppColors' • lib/screens/profile_screen.dart:233:40 • undefined_getter
+  error • The name 'PhoneAuthScreen' isn't a class • lib/screens/profile_screen.dart:239:31 • creation_with_non_type
+  error • The getter 'h3' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:267:32 • undefined_getter
+  error • The getter 'bodySmall' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:271:32 • undefined_getter
+  error • The getter 'bodyLarge' isn't defined for the type 'AppTextStyles' • lib/screens/profile_screen.dart:293:32 • undefined_getter
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/screens/splash_screen.dart:55:42 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/services/auth_service.dart:66:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/auth_service.dart:114:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/auth_service.dart:132:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/auth_service.dart:145:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/services/auth_service.dart:166:7 • avoid_print
+

@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/match_provider.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
-import '../matches/matches_screen.dart';
-import '../matches/live_matches_screen.dart';
-import '../profile/profile_screen.dart';
+import 'matches_screen.dart';
+import 'live_matches_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

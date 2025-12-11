@@ -7,6 +7,9 @@ import '../../utils/routes.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../../components/avatars/custom_avatar.dart';
+import '../components/button_component.dart';
+import '../components/custom_avatar_component.dart';
+import '../components/text_field_component.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -166,8 +169,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully'),
+        SnackBar(
+          content: const Text('Profile updated successfully'),
           backgroundColor: AppColors.successGreen,
         ),
       );

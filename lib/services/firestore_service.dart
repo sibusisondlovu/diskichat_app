@@ -191,7 +191,13 @@ class FirestoreService {
         .doc(userId)
         .get();
 
-    return voteDoc.exists ? voteDoc.data()?['type'] : null;
+    if (voteDoc.exists) {
+        final data = voteDoc.data();
+        if (data != null) {
+             return data['type'];
+        }
+    }
+    return null;
   }
 
   // ========== ROOM ACTIVITY ==========
