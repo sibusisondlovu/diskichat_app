@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/match_provider.dart';
+import 'providers/user_provider.dart';
 import 'screens/splash_screen.dart';
+import 'utils/themes/app_theme.dart';
 
 
 class DiskichatApp extends StatelessWidget {
