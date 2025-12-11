@@ -5,4 +5,8 @@ class TimeHelper {
   static String formatMatchTime(DateTime date) {
     return DateFormat('HH:mm').format(date);
   }
+
+  static String formatMessageTime(DateTime date) {
+    return DateFormat('HH:mm').format(date);
+  }
 }

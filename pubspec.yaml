@@ -223,5 +223,5 @@ flutter:
   fonts:
     - family: 'Poppins'
       fonts:
-        - asset: lib/assets/fonts/Poppins-Regular.otf
+        - asset: lib/assets/fonts/poppins.ttf
 

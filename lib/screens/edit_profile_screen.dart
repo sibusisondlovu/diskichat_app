@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/themes/app_colors.dart';
-import '../../utils/themes/text_styles.dart';
 import '../../utils/routes.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../../components/avatars/custom_avatar.dart';
-import '../components/button_component.dart';
-import '../components/custom_avatar_component.dart';
-import '../components/text_field_component.dart';
+
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
