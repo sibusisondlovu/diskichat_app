@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../data/models/match_model.dart';
+import '../../screens/chat_room_screen.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import '../../utils/themes/gradients.dart';
 import '../../utils/helpers/time_helper.dart';
 import '../../utils/routes.dart';
 import '../badges/live_indicator.dart';
-import '../../screens/chat/match_room_screen.dart';
+
 
 class MatchCard extends StatelessWidget {
   final MatchModel match;

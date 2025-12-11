@@ -49,4 +49,38 @@ class AppTextStyles {
     fontSize: 12,
     color: AppColors.textGrey,
   );
+
+  static const TextStyle button = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textWhite,
+  );
+
+  static const TextStyle scoreMedium = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textWhite,
+  );
+
+  static const TextStyle messageUsername = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textWhite,
+  );
+
+  static const TextStyle messageTime = TextStyle(
+    fontSize: 10,
+    color: AppColors.textGrey,
+  );
+
+  static const TextStyle messageText = TextStyle(
+    fontSize: 14,
+    color: AppColors.textWhite,
+  );
+
+  static const TextStyle h4 = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.bold,
+    color: AppColors.textWhite,
+  );
 }

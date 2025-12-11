@@ -17,4 +17,6 @@ class AppColors {
   static const Color liveGreen = Color(0xFF00C853);
   static const Color successGreen = Color(0xFF00C853);
   static const Color inputBackground = Color(0xFF2B3A4A);
+  static const Color upvote = Colors.orange;
+  static const Color downvote = Colors.blueGrey;
 }
