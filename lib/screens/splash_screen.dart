@@ -38,7 +38,11 @@ class _SplashScreenState extends State<SplashScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     debugPrint('DEBUG: Auth check - isAuthenticated: ${authProvider.isAuthenticated}');
 
-    if (authProvider.isAuthenticated) {
+    // Check persistence flag first
+    final bool isLoggedIn = StorageService().isLoggedIn;
+    debugPrint('DEBUG: Persistence check - isLoggedIn: $isLoggedIn');
+
+    if (authProvider.isAuthenticated || isLoggedIn) {
       debugPrint('DEBUG: Navigating to HomeScreen');
       AppRoutes.navigateReplace(context, const HomeScreen());
     } else {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../data/models/user_model.dart';
+import '../services/storage_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _authService = AuthService();
@@ -97,6 +98,10 @@ class AuthProvider extends ChangeNotifier {
 
       _isLoading = false;
       notifyListeners();
+      
+      // Save persistence flag
+      await StorageService().setLoggedIn(true);
+      
       return true;
 
     } catch (e) {
@@ -151,6 +156,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     await _authService.signOut();
+    await StorageService().setLoggedIn(false);
 
     _user = null;
     _userProfile = null;

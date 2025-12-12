@@ -203,17 +203,27 @@ class FirestoreService {
   // ========== ROOM ACTIVITY ==========
 
   // Join room
-  Future<void> joinRoom(String matchId, String userId) async {
-    await _firestore
+  Future<void> joinRoom(String matchId, String userId, {bool checkLimit = true}) async {
+    final activeUsersRef = _firestore
         .collection('matches')
         .doc(matchId)
-        .collection('activeUsers')
-        .doc(userId)
-        .set({
+        .collection('activeUsers');
+
+    if (checkLimit) {
+      // Check count first
+      final countQuery = await activeUsersRef.count().get();
+      final count = countQuery.count ?? 0;
+
+      if (count >= 100) {
+        throw Exception('Room is full (100/100 users). Try again later.');
+      }
+    }
+
+    await activeUsersRef.doc(userId).set({
       'userId': userId,
       'joinedAt': FieldValue.serverTimestamp(),
       'lastActive': FieldValue.serverTimestamp(),
-    });
+    }, SetOptions(merge: true)); // Merge to prevent overwriting joinedAt if needed
   }
 
   // Update last active

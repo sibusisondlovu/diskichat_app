@@ -14,4 +14,13 @@ class AppGradients {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
+
+  static LinearGradient glass = LinearGradient(
+    colors: [
+      Colors.white.withValues(alpha: 0.1),
+      Colors.white.withValues(alpha: 0.05),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

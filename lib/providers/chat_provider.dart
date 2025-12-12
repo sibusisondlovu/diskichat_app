@@ -125,12 +125,25 @@ class ChatProvider extends ChangeNotifier {
     return _userVotes[messageId];
   }
 
+  final Set<String> _joinedMatchIds = {};
+
+  // Check if joined
+  bool isJoined(String matchId) => _joinedMatchIds.contains(matchId);
+
   // Join room
   Future<void> joinRoom(String matchId) async {
     final user = _authService.currentUser;
     if (user == null) return;
 
-    await _firestoreService.joinRoom(matchId, user.uid);
+    if (_joinedMatchIds.contains(matchId)) {
+      // Already joined locally, just ensure backend is updated (without erroring)
+      await _firestoreService.joinRoom(matchId, user.uid, checkLimit: false);
+    } else {
+      // New join
+      await _firestoreService.joinRoom(matchId, user.uid, checkLimit: true);
+      _joinedMatchIds.add(matchId);
+      notifyListeners();
+    }
   }
 
   // Leave room
@@ -139,6 +152,8 @@ class ChatProvider extends ChangeNotifier {
     if (user == null) return;
 
     await _firestoreService.leaveRoom(matchId, user.uid);
+    _joinedMatchIds.remove(matchId);
+    notifyListeners();
   }
 
   // Update last active

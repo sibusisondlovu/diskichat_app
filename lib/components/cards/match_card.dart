@@ -1,5 +1,8 @@
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import '../../data/models/match_model.dart';
+import '../../providers/chat_provider.dart';
+import '../../services/firestore_service.dart';
 import '../../screens/chat/chat_room_screen.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
@@ -32,7 +35,7 @@ class MatchCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -44,7 +47,7 @@ class MatchCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.cardSurface.withOpacity(0.5),
+                color: AppColors.cardSurface.withValues(alpha: 0.5),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -63,30 +66,37 @@ class MatchCard extends StatelessWidget {
                     ),
                   ),
 
-                  // Fan Count Badge
-                  if (match.fanCount > 0)
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.accentBlue.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: AppColors.accentBlue.withOpacity(0.3)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.people, size: 12, color: AppColors.accentBlue),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${match.fanCount}',
-                            style: AppTextStyles.caption.copyWith(
-                              color: AppColors.accentBlue,
-                              fontWeight: FontWeight.w600,
+                  // Real-time Fan Count Badge
+                  StreamBuilder<int>(
+                    stream: FirestoreService().getActiveUsersCount(match.id),
+                    builder: (context, snapshot) {
+                      final count = snapshot.data ?? 0;
+                      if (count == 0 && !match.isLive) return const SizedBox.shrink();
+
+                      return Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.accentBlue.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: AppColors.accentBlue.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.people, size: 12, color: AppColors.accentBlue),
+                            const SizedBox(width: 4),
+                            Text(
+                              '$count',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.accentBlue,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Live indicator or time
                   if (match.isLive)
@@ -182,50 +192,60 @@ class MatchCard extends StatelessWidget {
 
                   const SizedBox(height: 16),
 
-                  // Join button
-                  Container(
-                    width: double.infinity,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.primaryButton,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          AppRoutes.navigateTo(
-                            context,
-                            ChatRoomScreen(match: match),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.chat_bubble,
-                              color: AppColors.textWhite,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Join Match Room',
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textWhite,
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            const Icon(
-                              Icons.arrow_forward,
-                              color: AppColors.textWhite,
-                              size: 18,
-                            ),
-                          ],
+                  // Join/Resume Button
+                  Consumer<ChatProvider>(
+                    builder: (context, chatProvider, child) {
+                      final isJoined = chatProvider.isJoined(match.id);
+                      
+                      return Container(
+                        width: double.infinity,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          gradient: isJoined 
+                              ? AppGradients.glass // Use distinct style for Resume
+                              : AppGradients.primaryButton,
+                          color: isJoined ? AppColors.accentBlue : null, 
+                          borderRadius: BorderRadius.circular(12),
+                          border: isJoined ? Border.all(color: AppColors.accentBlue) : null,
                         ),
-                      ),
-                    ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              AppRoutes.navigateTo(
+                                context,
+                                ChatRoomScreen(match: match),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  isJoined ? Icons.play_arrow_rounded : Icons.chat_bubble,
+                                  color: AppColors.textWhite,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  isJoined ? 'RESUME MATCH ROOM' : 'JOIN MATCH ROOM',
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textWhite,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_forward,
+                                  color: AppColors.textWhite,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
