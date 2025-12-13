@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/models/match_model.dart';
 import '../data/models/message_model.dart';
+import '../data/models/post_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -272,5 +273,56 @@ class FirestoreService {
     for (var doc in snapshot.docs) {
       await doc.reference.delete();
     }
+  }
+  // ========== SOCIAL FEED ==========
+
+  // Get Feed Stream
+  Stream<List<PostModel>> getFeed() {
+    return _firestore
+        .collection('posts')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+        .map((doc) => PostModel.fromMap(doc.data(), doc.id))
+        .toList());
+  }
+
+  // Create Post
+  Future<void> createPost(PostModel post) async {
+    // We let Firestore generate ID, so we use collection.add or set with custom ID?
+    // PostModel ID is locally generated? No, let's use add().
+    // We passed a PostModel, but we should probably just pass the Map or ignore ID.
+    await _firestore.collection('posts').add(post.toMap());
+  }
+
+  // Like Post
+  Future<void> likePost(String postId, String userId) async {
+    final postRef = _firestore.collection('posts').doc(postId);
+    final likeRef = postRef.collection('likes').doc(userId);
+
+    final likeDoc = await likeRef.get();
+    if (likeDoc.exists) {
+      // Unlike
+      await likeRef.delete();
+      await postRef.update({'likesCount': FieldValue.increment(-1)});
+    } else {
+      // Like
+      await likeRef.set({
+        'userId': userId,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      await postRef.update({'likesCount': FieldValue.increment(1)});
+    }
+  }
+
+  // Check if User Liked Post
+  Future<bool> hasUserLikedPost(String postId, String userId) async {
+    final likeDoc = await _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(userId)
+        .get();
+    return likeDoc.exists;
   }
 }

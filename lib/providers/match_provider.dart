@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '../services/firestore_service.dart';
+import '../services/api_service.dart';
 import '../data/models/match_model.dart';
 import '../services/mock_data_service.dart';
 
 class MatchProvider extends ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
+  final ApiService _apiService = ApiService();
 
   List<MatchModel> _allMatches = [];
   List<MatchModel> _liveMatches = [];
@@ -42,52 +44,79 @@ class MatchProvider extends ChangeNotifier {
   }
 
   // Load mock matches
-  void loadMockMatches() {
-    _isLoading = true;
-    notifyListeners();
-
-    // Simulate network delay
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _allMatches = MockDataService.getMockMatches();
-      _liveMatches = _allMatches.where((m) => m.status == 'live').toList();
-      _todayMatches = _allMatches;
-      _isLoading = false;
-      notifyListeners();
-    });
+  // Now only returns upcoming/finished mock matches to avoid overwriting real live data
+  List<MatchModel> _getMockUpcomingMatches() {
+    return MockDataService.getMockMatches()
+        .where((m) => m.status != 'live')
+        .toList();
   }
 
-  // Load all matches
-  void loadMatches() {
-    // For now, use mock data as requested
-    loadMockMatches();
+  // Load all matches (Live from API + Upcoming from Mock)
+  Future<void> loadMatches() async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+    
+    try {
+      // 1. Fetch Live Matches from API
+      final liveMatches = await _apiService.getLiveMatches();
+      _liveMatches = liveMatches;
+      
+      // 2. Fetch Mock Upcoming (since we don't have API for upcoming yet)
+      final upcomingMatches = _getMockUpcomingMatches();
+      
+      // 3. Combine
+      _allMatches = [..._liveMatches, ...upcomingMatches];
+      
+      // 4. Update Today (simplified)
+      _todayMatches = _allMatches;
+      
+    } catch (e) {
+      debugPrint('Error loading matches: $e');
+      _errorMessage = 'Failed to load matches';
+      
+      // Fallback: If API fails, show what we have (mock upcoming) 
+      // or should we show mock live too? Let's stick to mock upcoming to avoid confusion.
+      _allMatches = _getMockUpcomingMatches();
+      _liveMatches = []; 
+      _todayMatches = _allMatches;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   // Load live matches
-  void loadLiveMatches() {
+  Future<void> loadLiveMatches() async {
     _isLoading = true;
+    _errorMessage = null; 
     notifyListeners();
     
-    // Simulate network delay for consistency
-    Future.delayed(const Duration(milliseconds: 300), () {
-      final mockData = MockDataService.getMockMatches();
-      _liveMatches = mockData.where((m) => m.status == 'live').toList();
+    try {
+      final matches = await _apiService.getLiveMatches();
+      _liveMatches = matches;
+      
+      // Update all matches to include these new live ones
+      final upcomingMatches = _getMockUpcomingMatches();
+      _allMatches = [..._liveMatches, ...upcomingMatches];
+      _todayMatches = _allMatches;
+      
+      if (_liveMatches.isEmpty) {
+        debugPrint('No live matches found from API');
+      }
+    } catch (e) {
+      debugPrint('Error loading live matches: $e');
+      _errorMessage = 'Failed to load live matches.';
+    } finally {
       _isLoading = false;
       notifyListeners();
-    });
+    }
   }
 
   // Load today's matches
   void loadTodayMatches() {
-    _isLoading = true;
-    notifyListeners();
-    
-    // Simulate network delay
-    Future.delayed(const Duration(milliseconds: 300), () {
-      // For mock data, we just return all of them as "Today" or specific ones
-      _todayMatches = MockDataService.getMockMatches();
-      _isLoading = false;
-      notifyListeners();
-    });
+     // Reuse loadMatches for now as it sets _todayMatches
+     loadMatches();
   }
 
   // Select match

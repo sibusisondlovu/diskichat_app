@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'event_model.dart';
 
 class MatchModel {
   final String id;
@@ -19,6 +20,7 @@ class MatchModel {
   final String? elapsedTime;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final List<EventModel> events;
 
   MatchModel({
     required this.id,
@@ -39,6 +41,7 @@ class MatchModel {
     this.elapsedTime,
     required this.createdAt,
     this.updatedAt,
+    this.events = const [],
   });
 
   // From Firestore
@@ -63,6 +66,43 @@ class MatchModel {
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
     );
+  }
+
+  // From API
+  factory MatchModel.fromApi(Map<String, dynamic> json) {
+    return MatchModel(
+      id: (json['fixture_id'] ?? '').toString(),
+      competitionId: null, // API might need a join or map for this if strictly needed here
+      competitionName: json['league_name'] ?? 'Football',
+      homeTeam: json['home_team'] ?? '',
+      awayTeam: json['away_team'] ?? '',
+      homeLogo: json['home_logo'],
+      awayLogo: json['away_logo'],
+      matchDate: DateTime.tryParse(json['date'] ?? '') ?? DateTime.now(),
+      status: _mapApiStatus(json['status_short']),
+      scoreHome: json['goals_home'] ?? 0,
+      scoreAway: json['goals_away'] ?? 0,
+      venue: null, // API response didn't explicitly show venue in the controller snippet, simplified
+      apiMatchId: (json['fixture_id'] ?? '').toString(),
+      aiPrediction: null,
+      fanCount: 0, // Not in API
+      elapsedTime: json['elapsed']?.toString(), // 'elapsed' is often in API-Football responses but check controller
+      createdAt: DateTime.now(),
+      events: (json['events'] as List<dynamic>?)
+          ?.map((e) => EventModel.fromJson(e))
+          .toList() ?? [],
+    );
+  }
+
+  static String _mapApiStatus(String? apiStatus) {
+    if (apiStatus == null) return 'upcoming';
+    // API-Football short statuses: 1H, 2H, HT, ET, P, FT, etc.
+    const liveStatuses = ['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'];
+    const finishedStatuses = ['FT', 'AET', 'PEN'];
+    
+    if (liveStatuses.contains(apiStatus)) return 'live';
+    if (finishedStatuses.contains(apiStatus)) return 'finished';
+    return 'upcoming';
   }
 
   // To Firestore

@@ -4,7 +4,8 @@ import '../../providers/match_provider.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import 'matches_screen.dart';
-import 'live_matches_screen.dart';
+import 'social/feed_screen.dart'; // Import
+// import 'live_matches_screen.dart'; // Removed
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const MatchesScreen(),
-    const LiveMatchesScreen(),
+    const FeedScreen(),
     const ProfileScreen(),
   ];
 
@@ -70,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Matches',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.sports_soccer),
-              label: 'Live Now',
+              icon: Icon(Icons.dynamic_feed), // Changed icon
+              label: 'Feed', // Changed label
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

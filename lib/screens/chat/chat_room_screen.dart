@@ -1,16 +1,21 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../data/models/match_model.dart';
 import '../../data/models/message_model.dart';
+import '../../data/models/lineup_model.dart'; // Import
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/api_service.dart'; // Import
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import '../../utils/themes/gradients.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../../components/common/loading_indicator.dart';
 import '../../components/common/empty_state.dart';
+import 'tabs/lineup_view.dart'; // Import
+import 'tabs/events_view.dart'; // Import
 
 class ChatRoomScreen extends StatefulWidget {
   final MatchModel match;
@@ -27,16 +32,71 @@ class ChatRoomScreen extends StatefulWidget {
 class _ChatRoomScreenState extends State<ChatRoomScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  
+  List<LineupModel> _lineups = [];
+  bool _isLoadingLineups = false;
+  late MatchModel _match; // Local state for match (to allow updates)
+  Timer? _timer;
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
+    _match = widget.match; // Initialize with passed match
+    _loadLineups();
+    
+    // Auto-refresh match data and lineups every 60s
+    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      if (mounted) {
+        _refreshMatchData();
+        _loadLineups(); // Optional: Refresh lineups too if subs happen
+      }
+    });
     // Load messages and join room
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _joinRoom();
       context.read<ChatProvider>().loadMessages(widget.match.id);
       context.read<ChatProvider>().loadActiveUsersCount(widget.match.id);
     });
+  }
+
+  Future<void> _refreshMatchData() async {
+    try {
+      // Currently we don't have single match API. 
+      // We fetch all live matches and find ours. Inefficient but works for MVP.
+      final liveMatches = await _apiService.getLiveMatches();
+      final updatedMatch = liveMatches.firstWhere(
+        (m) => m.id == widget.match.id, 
+        orElse: () => _match // Keep old if not found (e.g. finished)
+      );
+       
+      if (mounted && updatedMatch != _match) { // Simplified equality check (might need id check or deep equality if instances differ)
+        // MatchModel logic: if fields differ. 
+        // Equatable isn't used, assuming fresh object.
+        // Let's just set state.
+        setState(() {
+          _match = updatedMatch;
+        });
+      }
+    } catch (e) {
+      debugPrint("Error refreshing match data: $e");
+    }
+  }
+
+  Future<void> _loadLineups() async {
+    setState(() => _isLoadingLineups = true);
+    try {
+      final lineups = await _apiService.getLineups(widget.match.id);
+      if (mounted) {
+        setState(() => _lineups = lineups);
+      }
+    } catch (e) {
+      debugPrint('Error loading lineups: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoadingLineups = false);
+      }
+    }
   }
 
   Future<void> _joinRoom() async {
@@ -177,11 +237,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                     ],
                   ),
                   
-                  // Tab 2: Line Ups (Placeholder)
-                  _buildPlaceholderTab("Line Ups coming soon 📋"),
+                  // Tab 2: Line Ups
+                  _isLoadingLineups 
+                      ? const Center(child: LoadingIndicator()) 
+                      : LineupView(lineups: _lineups, match: _match),
                   
-                  // Tab 3: Events (Placeholder)
-                  _buildPlaceholderTab("Match Events coming soon ⚽"),
+                  // Tab 3: Events
+                  EventsView(match: _match),
                 ],
               ),
             ),
@@ -219,7 +281,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           // Home Team
           Expanded(
             child: Text(
-              widget.match.homeTeam,
+              _match.homeTeam,
               style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.right,
             ),
@@ -237,13 +299,18 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             child: Column(
               children: [
                 Text(
-                  widget.match.scoreDisplay,
+                  _match.scoreDisplay,
                   style: AppTextStyles.scoreMedium.copyWith(fontSize: 18),
                 ),
                 Text(
-                  widget.match.elapsedTime ?? widget.match.status,
-                  style: AppTextStyles.caption.copyWith(color: AppColors.liveGreen),
+                _match.isLive && _match.elapsedTime != null 
+                    ? "${_match.elapsedTime}'" 
+                    : _match.statusDisplay,
+                style: AppTextStyles.caption.copyWith(
+                  color: _match.isLive ? AppColors.liveGreen : AppColors.textGray,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
               ],
             ),
           ),
@@ -251,7 +318,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
           // Away Team
           Expanded(
             child: Text(
-              widget.match.awayTeam,
+              _match.awayTeam,
               style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
               textAlign: TextAlign.left,
             ),
