@@ -74,13 +74,20 @@ class FeedPostCard extends StatelessWidget {
                             ),
                             child: Row(
                               children: [
-                                Image.asset(
-                                  TeamsConstants.getLogoPath(post.userTeam!),
-                                  width: 14,
-                                  height: 14,
-                                  errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
-                                ),
-                                const SizedBox(width: 4),
+                                  post.userTeamLogo != null 
+                                    ? Image.network(
+                                        post.userTeamLogo!,
+                                        width: 14,
+                                        height: 14,
+                                        errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
+                                      )
+                                    : Image.asset(
+                                        TeamsConstants.getLogoPath(post.userTeam!),
+                                        width: 14,
+                                        height: 14,
+                                        errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
+                                      ),
+                                  const SizedBox(width: 4),
                                 Text(
                                   post.userTeam!, 
                                   style: const TextStyle(fontSize: 10, color: AppColors.textGray, fontWeight: FontWeight.w600),

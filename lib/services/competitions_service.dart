@@ -24,7 +24,7 @@ class League {
 class CompetitionsService {
   Future<List<League>> getCompetitions() async {
     try {
-      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/api/competitions/all')); 
+      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/api/competitions')); 
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

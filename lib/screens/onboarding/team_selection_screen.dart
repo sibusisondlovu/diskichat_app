@@ -10,12 +10,14 @@ class TeamSelectionScreen extends StatefulWidget {
   final String userId;
   final String subscriptionType;
   final int currentFollowCount;
+  final String? countryName; // Country filter
 
   const TeamSelectionScreen({
     super.key,
     required this.userId,
     required this.subscriptionType,
     required this.currentFollowCount,
+    this.countryName,
   });
 
   @override
@@ -42,7 +44,7 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
     try {
       // Mocking fetch all teams or need to implement getTeams in service
       // Assuming getTeams returns list of teams
-      final teams = await _teamsService.getTeams(); 
+      final teams = await _teamsService.getTeams(country: widget.countryName); 
       setState(() {
         _allTeams = teams;
         _filteredTeams = teams;
@@ -118,61 +120,78 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        title: const Text('Follow a Team'),
+         title: Text(widget.countryName != null ? 'Teams in ${widget.countryName}' : 'Follow a Team'),
         backgroundColor: AppColors.primaryDark,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: _filterTeams,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Search teams...',
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                filled: true,
-                fillColor: AppColors.cardDark,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: LoadingIndicator())
-                : ListView.builder(
-                    itemCount: _filteredTeams.length,
-                    itemBuilder: (context, index) {
-                      final team = _filteredTeams[index];
-                      return ListTile(
-                        leading: Image.network(
-                          team.logo,
-                          width: 40,
-                          height: 40,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.error),
-                        ),
-                        title: Text(
-                          team.name,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        trailing: ElevatedButton(
-                          onPressed: () => _handleFollow(team),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.accentBlue,
-                            foregroundColor: Colors.white,
-                          ),
-                          child: const Text('Follow'),
-                        ),
-                      );
-                    },
+      body: _isLoading
+          ? const Center(child: LoadingIndicator())
+          : _filteredTeams.isEmpty 
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.sports_soccer, size: 64, color: AppColors.textMuted),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No teams found for ${widget.countryName ?? 'selection'}',
+                        style: const TextStyle(color: AppColors.textMuted),
+                      ),
+                    ],
                   ),
-          ),
-        ],
-      ),
+                )
+              : GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 0.8,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: _filteredTeams.length,
+                  itemBuilder: (context, index) {
+                    final team = _filteredTeams[index];
+                    return GestureDetector(
+                      onTap: () => _handleFollow(team),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.cardSurface,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white10),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (team.logo != null && team.logo!.isNotEmpty)
+                              Image.network(
+                                team.logo!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => const Icon(Icons.shield, size: 40, color: Colors.grey),
+                              )
+                            else
+                              const Icon(Icons.shield, size: 50, color: Colors.grey),
+                            const SizedBox(height: 12),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Text(
+                                team.name,
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

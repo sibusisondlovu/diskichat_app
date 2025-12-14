@@ -9,6 +9,7 @@ class UserModel {
   final String rank; // amateur, semi_pro, pro, world_class, legend
   final int points;
   final String? favoriteTeam;
+  final String? favoriteTeamLogo;
   final String? country;
   final String? bio;
   final DateTime createdAt;
@@ -23,6 +24,7 @@ class UserModel {
     this.rank = 'amateur',
     this.points = 0,
     this.favoriteTeam,
+    this.favoriteTeamLogo,
     this.country,
     this.bio,
     required this.createdAt,
@@ -40,6 +42,7 @@ class UserModel {
       rank: map['rank'] ?? 'amateur',
       points: map['points'] ?? 0,
       favoriteTeam: map['favoriteTeam'],
+      favoriteTeamLogo: map['favoriteTeamLogo'],
       country: map['country'],
       bio: map['bio'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -58,6 +61,7 @@ class UserModel {
       'rank': rank,
       'points': points,
       'favoriteTeam': favoriteTeam,
+      'favoriteTeamLogo': favoriteTeamLogo,
       'country': country,
       'bio': bio,
       'createdAt': Timestamp.fromDate(createdAt),

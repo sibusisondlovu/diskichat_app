@@ -115,6 +115,7 @@ class AuthProvider extends ChangeNotifier {
     String? username,
     String? avatarUrl,
     String? favoriteTeam,
+    String? favoriteTeamLogo,
     String? country,
     String? bio,
   }) async {
@@ -131,6 +132,7 @@ class AuthProvider extends ChangeNotifier {
         username: username,
         avatarUrl: avatarUrl,
         favoriteTeam: favoriteTeam,
+        favoriteTeamLogo: favoriteTeamLogo,
         country: country,
         bio: bio,
       );

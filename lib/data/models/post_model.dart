@@ -5,6 +5,7 @@ class PostModel {
   final String userId;
   final String username;
   final String? userTeam;
+  final String? userTeamLogo;
   final String? userAvatar;
   final String content;
   final String? imageUrl;
@@ -19,6 +20,7 @@ class PostModel {
     required this.userId,
     required this.username,
     this.userTeam, 
+    this.userTeamLogo,
     this.userAvatar,
     required this.content,
     this.imageUrl,
@@ -36,6 +38,7 @@ class PostModel {
       userId: map['userId'] ?? '',
       username: map['username'] ?? 'Anonymous',
       userTeam: map['userTeam'],
+      userTeamLogo: map['userTeamLogo'],
       userAvatar: map['userAvatar'],
       content: map['content'] ?? '',
       imageUrl: map['imageUrl'],
@@ -55,6 +58,7 @@ class PostModel {
       'userId': userId,
       'username': username,
       'userTeam': userTeam,
+      'userTeamLogo': userTeamLogo,
       'userAvatar': userAvatar,
       'content': content,
       'imageUrl': imageUrl,

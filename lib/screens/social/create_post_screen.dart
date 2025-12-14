@@ -55,6 +55,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     // Fallback info if profile is missing (shouldn't happen with wizard, but safety first)
     final String username = profile?.username ?? user.displayName ?? 'Anonymous';
     final String? userTeam = profile?.favoriteTeam;
+    final String? userTeamLogo = profile?.favoriteTeamLogo;
     final String? userAvatar = profile?.avatarUrl ?? user.photoURL;
 
       final newPost = PostModel(
@@ -62,6 +63,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         userId: user.uid,
         username: username,
         userTeam: userTeam,
+        userTeamLogo: userTeamLogo,
         userAvatar: userAvatar,
         content: text,
         imageUrl: imageUrl,

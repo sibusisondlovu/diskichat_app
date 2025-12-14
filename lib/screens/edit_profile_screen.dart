@@ -9,6 +9,9 @@ import '../../services/image_upload_service.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../../components/avatars/custom_avatar.dart';
+import 'onboarding/team_selection_screen.dart';
+import 'onboarding/country_selection_screen.dart';
+import '../data/models/country_model.dart';
 
 
 class EditProfileScreen extends StatefulWidget {
@@ -25,6 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   
   bool _isUploadingImage = false;
   String? _newAvatarUrl;
+  String? _newFavoriteTeamLogo;
 
   late TextEditingController _displayNameController;
   late TextEditingController _usernameController;
@@ -41,6 +45,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _usernameController = TextEditingController(text: profile?.username);
     _bioController = TextEditingController(text: profile?.bio);
     _favoriteTeamController = TextEditingController(text: profile?.favoriteTeam);
+    _newFavoriteTeamLogo = profile?.favoriteTeamLogo;
   }
 
   @override
@@ -50,6 +55,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _bioController.dispose();
     _favoriteTeamController.dispose();
     super.dispose();
+  }
+
+  Future<void> _selectTeam() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.user;
+    if (user == null) return;
+
+    // 1. Select Country
+    final countryResult = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const CountrySelectionScreen(),
+      ),
+    );
+
+    if (countryResult == null || countryResult is! Country) return;
+
+    // 2. Select Team from Country
+    if (!mounted) return;
+    final teamResult = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TeamSelectionScreen(
+          userId: user.uid,
+          subscriptionType: 'FREE', // Or fetch actual subscription if available
+          currentFollowCount: 0, 
+          countryName: countryResult.name,
+        ),
+      ),
+    );
+
+    if (teamResult != null) {
+      // Result is Team object (dynamic or typed)
+      final teamName = (teamResult as dynamic).name;
+      final teamLogo = (teamResult as dynamic).logo;
+
+      setState(() {
+        _favoriteTeamController.text = teamName;
+        _newFavoriteTeamLogo = teamLogo;
+      });
+    }
   }
 
   @override
@@ -140,12 +186,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                   const SizedBox(height: 16),
 
-                  // Favorite Team
-                  CustomTextField(
-                    controller: _favoriteTeamController,
-                    labelText: 'Favorite Team',
-                    hintText: 'Enter your favorite team',
-                    prefixIcon: Icons.sports_soccer,
+                  // Favorite Team - Updated to be ReadOnly and triggering selection
+                  GestureDetector(
+                    onTap: _selectTeam,
+                    child: AbsorbPointer(
+                      child: CustomTextField(
+                        controller: _favoriteTeamController,
+                        labelText: 'Favorite Team',
+                        hintText: 'Select your favorite team',
+                        prefixIcon: Icons.sports_soccer,
+                        // readOnly: true, // CustomTextField might not support readOnly prop directly if custom.
+                                          // Using AbsorbPointer + GestureDetector is a safe way.
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 16),
@@ -184,6 +237,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       displayName: _displayNameController.text.trim(),
       username: _usernameController.text.trim(),
       favoriteTeam: _favoriteTeamController.text.trim(),
+      favoriteTeamLogo: _newFavoriteTeamLogo, // Include new logo
       bio: _bioController.text.trim(),
       avatarUrl: _newAvatarUrl,
     );

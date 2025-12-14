@@ -129,7 +129,7 @@ class _LeagueSelectionScreenState extends State<LeagueSelectionScreen> {
                 hintStyle: const TextStyle(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 filled: true,
-                fillColor: AppColors.cardDark,
+                fillColor: AppColors.inputBackground,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,

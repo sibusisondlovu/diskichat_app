@@ -4,7 +4,7 @@ import '../utils/constants/api_constants.dart';
 import '../data/models/team_model.dart';
 
 class TeamsService {
-  Future<List<Team>> getTeams() async {
+  Future<List<Team>> getTeams({String? country}) async {
     try {
       // Assuming endpoint GET /api/teams exists and returns all seeded teams
       // Or we can add search params later. For MVP/Seeding, we probably just get all or by league
@@ -13,7 +13,10 @@ class TeamsService {
       // I only have `GET /api/teams` which probably calls `fetchTeams` (the sync).
       // I need to check `teams.routes.js`.
       
-      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}/api/teams/all')); // Assuming we make a "list" endpoint
+      final uri = Uri.parse('${ApiConstants.baseUrl}/api/teams').replace(
+        queryParameters: country != null ? {'country': country} : null,
+      );
+      final response = await http.get(uri);
       
       if (response.statusCode == 200) {
         final data = json.decode(response.body);

@@ -14,6 +14,8 @@ import '../../components/inputs/custom_text_field.dart';
 import '../home_screen.dart';
 import '../onboarding/team_selection_screen.dart';
 import '../onboarding/league_selection_screen.dart';
+import '../onboarding/country_selection_screen.dart';
+import '../../data/models/country_model.dart';
 
 class ProfileWizardScreen extends StatefulWidget {
   const ProfileWizardScreen({super.key});
@@ -28,6 +30,8 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
   int _currentStep = 0;
   bool _isTeamSelected = false;
   bool _isLeagueSelected = false;
+  Country? _selectedCountry;
+  bool _isCountrySelected = false;
 
   void _nextStep() async {
     if (_currentStep == 0) {
@@ -53,12 +57,10 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
       setState(() => _currentStep = 1);
       
     } else if (_currentStep == 1) {
-      // Team Step
-      // Ideally enforce selection, but for now allow skip or check state
-      if (!_isTeamSelected) {
-         _showToast("Please select a team to follow", icon: Icons.sports_soccer);
-        // Optional: Allow skip? User request implies limits, so maybe mandatory.
-        return; 
+      // Country Step
+      if (!_isCountrySelected || _selectedCountry == null) {
+         _showToast("Please select a country", icon: Icons.public);
+         return;
       }
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -67,6 +69,18 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
       setState(() => _currentStep = 2);
 
     } else if (_currentStep == 2) {
+      // Team Step
+      if (!_isTeamSelected) {
+         _showToast("Please select a team to follow", icon: Icons.sports_soccer);
+        return; 
+      }
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentStep = 3);
+
+    } else if (_currentStep == 3) {
       // League Step
       if (!_isLeagueSelected) {
          _showToast("Please select a league", icon: Icons.emoji_events);
@@ -110,7 +124,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
           children: [
             // Progress Indicator
             LinearProgressIndicator(
-              value: (_currentStep + 1) / 3,
+              value: (_currentStep + 1) / 4,
               backgroundColor: AppColors.cardSurface,
               color: AppColors.accentBlue,
             ),
@@ -121,6 +135,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
                    _buildNicknameStep(),
+                  _buildCountrySelectionStep(),
                   _buildTeamSelectionStep(),
                   _buildLeagueSelectionStep(),
                 ],
@@ -133,7 +148,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
               child: isLoading 
                 ? const SpinKitThreeBounce(color: AppColors.accentBlue, size: 30)
                 : GradientButton(
-                    text: _currentStep == 2 ? 'Finish' : 'Next',
+                    text: _currentStep == 3 ? 'Finish' : 'Next',
                     onPressed: _nextStep,
                   ),
             ),
@@ -209,7 +224,8 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
                   builder: (context) => TeamSelectionScreen(
                     userId: user.uid,
                     subscriptionType: 'FREE', // Default new user
-                    currentFollowCount: 0, // Assuming 0 as this is onboarding
+                    currentFollowCount: 0, 
+                    countryName: _selectedCountry?.name, // From previous step
                   ),
                 ),
               );
@@ -218,14 +234,22 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
                  // Update the provider/backend so Welcome screen knows setup is done
                  // Assuming result has a .name property
                  // We need to cast result or use dynamic
-                 final teamName = (result as dynamic).name; 
-                 // Or better import Team model in ProfileWizard but I can use dynamic for quick fix or cast if I import models.
+
                  // Models are not imported in ProfileWizardScreen currently? 
                  // Ah, previous file content showed `import '../../utils/constants/teams_constants.dart';` but not models.
                  // I should probably import team model to be safe or just use dynamic.
                  
                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                 await authProvider.updateProfile(favoriteTeam: teamName);
+                 
+                 // Extract name and logo
+                 // Using dynamic currently as Team model import might be missing or generic
+                 final teamName = (result as dynamic).name;
+                 final teamLogo = (result as dynamic).logo; // Assuming Team model has .logo
+                 
+                 await authProvider.updateProfile(
+                    favoriteTeam: teamName,
+                    favoriteTeamLogo: teamLogo,
+                 );
                  
                 setState(() => _isTeamSelected = true);
               }
@@ -244,6 +268,71 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
               padding: EdgeInsets.only(top: 16.0),
               child: Text(
                 'Team Selected!',
+                style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCountrySelectionStep() {
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isCountrySelected ? Icons.check_circle : Icons.public,
+            size: 80, 
+            color: _isCountrySelected ? AppColors.successGreen : AppColors.accentBlue
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Pick your Country',
+            style: AppTextStyles.h2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Select the country of your favorite team.',
+            style: AppTextStyles.body,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 48),
+          
+          OutlinedButton.icon(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CountrySelectionScreen(),
+                ),
+              );
+              
+              if (result != null && result is Country) {
+                setState(() {
+                  _selectedCountry = result;
+                  _isCountrySelected = true;
+                  // If we change country, we should probably reset team selection
+                  _isTeamSelected = false;
+                });
+              }
+            },
+            icon: const Icon(Icons.search),
+            label: Text(_isCountrySelected ? (_selectedCountry?.name ?? 'Change Country') : 'Select Country'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.accentBlue,
+              side: const BorderSide(color: AppColors.accentBlue),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+          ),
+          
+          if (_isCountrySelected)
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'Country Selected!',
                 style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
               ),
             ),

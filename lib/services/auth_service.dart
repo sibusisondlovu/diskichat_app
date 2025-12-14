@@ -67,6 +67,7 @@ class AuthService {
     String? username,
     String? avatarUrl,
     String? favoriteTeam,
+    String? favoriteTeamLogo,
     String? country,
     String? bio,
   }) async {
@@ -79,6 +80,7 @@ class AuthService {
       if (username != null) updates['username'] = username;
       if (avatarUrl != null) updates['avatarUrl'] = avatarUrl;
       if (favoriteTeam != null) updates['favoriteTeam'] = favoriteTeam;
+      if (favoriteTeamLogo != null) updates['favoriteTeamLogo'] = favoriteTeamLogo;
       if (country != null) updates['country'] = country;
       if (bio != null) updates['bio'] = bio;
 
