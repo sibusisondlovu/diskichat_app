@@ -50,11 +50,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         imageUrl = await uploadService.uploadImage(_selectedImage!);
       }
 
+    final profile = context.read<AuthProvider>().userProfile;
+    
+    // Fallback info if profile is missing (shouldn't happen with wizard, but safety first)
+    final String username = profile?.username ?? user.displayName ?? 'Anonymous';
+    final String? userTeam = profile?.favoriteTeam;
+    final String? userAvatar = profile?.avatarUrl ?? user.photoURL;
+
       final newPost = PostModel(
         id: '', // Firestore will generate
         userId: user.uid,
-        username: user.displayName ?? 'Anonymous',
-        userAvatar: user.photoURL,
+        username: username,
+        userTeam: userTeam,
+        userAvatar: userAvatar,
         content: text,
         imageUrl: imageUrl,
         createdAt: DateTime.now(),

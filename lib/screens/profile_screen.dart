@@ -10,6 +10,10 @@ import '../../components/badges/rank_badge.dart';
 import '../../components/avatars/custom_avatar.dart';
 import 'edit_profile_screen.dart';
 import 'auth/welcome_auth_screen.dart';
+import 'settings/feature_request_screen.dart';
+import 'settings/help_support_screen.dart';
+import 'settings/about_screen.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -204,24 +208,44 @@ class ProfileScreen extends StatelessWidget {
 
                 // Menu items
                 _buildMenuItem(
-                  icon: Icons.bookmark,
-                  title: 'Saved Matches',
-                  onTap: () {},
-                ),
-                _buildMenuItem(
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  onTap: () {},
+                  icon: Icons.feedback,
+                  title: 'Feature Request & Feedback',
+                  onTap: () {
+                    AppRoutes.navigateTo(
+                      context,
+                      const FeatureRequestScreen(),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   icon: Icons.help,
                   title: 'Help & Support',
-                  onTap: () {},
+                  onTap: () {
+                    AppRoutes.navigateTo(
+                      context,
+                      const HelpSupportScreen(),
+                    );
+                  },
                 ),
                 _buildMenuItem(
                   icon: Icons.info,
                   title: 'About',
-                  onTap: () {},
+                  onTap: () {
+                    AppRoutes.navigateTo(
+                      context,
+                      const AboutScreen(),
+                    );
+                  },
+                ),
+                _buildMenuItem(
+                  icon: Icons.share,
+                  title: 'Invite a Friend',
+                  onTap: () {
+                    Share.share(
+                      'Check out DiskiChat! The ultimate app for soccer fans. Download it now: https://diskichat.app',
+                      subject: 'Join me on DiskiChat!',
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 16),

@@ -65,7 +65,7 @@ class AuthProvider extends ChangeNotifier {
       // Remove any spaces or special chars from mobile just in case
       final cleanMobile = mobileNumber.replaceAll(RegExp(r'\s+'), '');
       final email = '$cleanMobile@diskichatapp.app';
-      const password = 'DefaultPassword123!'; // Hardcoded for prototype as requested
+      const password = 'userPassword123!'; // Hardcoded for prototype as requested
 
       try {
         // Attempt Sign In
@@ -90,11 +90,8 @@ class AuthProvider extends ChangeNotifier {
       await loadUserProfile();
       
       // Safety Check: If profile is still null (e.g. deleted or failed creation), recreate it
-      if (_userProfile == null && _user != null) {
-        debugPrint('DEBUG: User profile not found, recreating...');
-        await _authService.createUserProfile(_user!);
-        await loadUserProfile();
-      }
+      // Profile check
+      // If profile is null, WelcomeAuthScreen will handle redirection to ProfileWizard
 
       _isLoading = false;
       notifyListeners();

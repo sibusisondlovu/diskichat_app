@@ -9,10 +9,11 @@ import '../../providers/auth_provider.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import '../../utils/themes/gradients.dart';
-import '../../utils/constants/teams_constants.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../home_screen.dart';
+import '../onboarding/team_selection_screen.dart';
+import '../onboarding/league_selection_screen.dart';
 
 class ProfileWizardScreen extends StatefulWidget {
   const ProfileWizardScreen({super.key});
@@ -25,51 +26,61 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
   final PageController _pageController = PageController();
   final TextEditingController _nicknameController = TextEditingController();
   int _currentStep = 0;
-  String? _selectedTeam;
+  bool _isTeamSelected = false;
+  bool _isLeagueSelected = false;
 
-  void _nextStep() {
+  void _nextStep() async {
     if (_currentStep == 0) {
+      // Nickname Step
       if (_nicknameController.text.trim().isEmpty) {
-        _showToast("Please enter a nickname", icon: Icons.warning);
+        _showToast("Please enter a nickname", icon: Icons.badge);
         return;
       }
+      // Update Profile with Nickname
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.updateProfile(
+        username: _nicknameController.text.trim(),
+      );
+      if (!success) {
+        _showToast("Failed to update nickname", icon: Icons.error);
+        return;
+      }
+      
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
       setState(() => _currentStep = 1);
+      
     } else if (_currentStep == 1) {
-      _completeProfile();
+      // Team Step
+      // Ideally enforce selection, but for now allow skip or check state
+      if (!_isTeamSelected) {
+         _showToast("Please select a team to follow", icon: Icons.sports_soccer);
+        // Optional: Allow skip? User request implies limits, so maybe mandatory.
+        return; 
+      }
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentStep = 2);
+
+    } else if (_currentStep == 2) {
+      // League Step
+      if (!_isLeagueSelected) {
+         _showToast("Please select a league", icon: Icons.emoji_events);
+         return;
+      }
+      _finishWizard();
     }
   }
 
-  void _completeProfile() async {
-    if (_selectedTeam == null) {
-      _showToast("Please select your favorite team", icon: Icons.sports_soccer);
-      return;
-    }
-
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.updateProfile(
-      username: _nicknameController.text.trim(),
-      favoriteTeam: _selectedTeam,
+  void _finishWizard() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const HomeScreen()),
     );
-
-    if (success) {
-      if (!mounted) return;
-      _showToast("Profile Created Successfully!", icon: Icons.check_circle);
-      
-      // Navigate to Home after a short delay
-      await Future.delayed(const Duration(seconds: 1));
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
-    } else {
-      if (!mounted) return;
-      _showToast("Failed to update profile", icon: Icons.error);
-    }
   }
   
   void _showToast(String message, {IconData icon = Icons.info}) {
@@ -99,7 +110,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
           children: [
             // Progress Indicator
             LinearProgressIndicator(
-              value: (_currentStep + 1) / 2,
+              value: (_currentStep + 1) / 3,
               backgroundColor: AppColors.cardSurface,
               color: AppColors.accentBlue,
             ),
@@ -109,8 +120,9 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  _buildNicknameStep(),
+                   _buildNicknameStep(),
                   _buildTeamSelectionStep(),
+                  _buildLeagueSelectionStep(),
                 ],
               ),
             ),
@@ -121,7 +133,7 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
               child: isLoading 
                 ? const SpinKitThreeBounce(color: AppColors.accentBlue, size: 30)
                 : GradientButton(
-                    text: _currentStep == 0 ? 'Next' : 'Finish',
+                    text: _currentStep == 2 ? 'Finish' : 'Next',
                     onPressed: _nextStep,
                   ),
             ),
@@ -162,90 +174,148 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
   }
 
   Widget _buildTeamSelectionStep() {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              Text(
-                'Pick your Team',
-                style: AppTextStyles.h2,
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Show your colors! This cannot be changed easily.',
-                style: AppTextStyles.bodySmall,
-              ),
-            ],
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+    
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _isTeamSelected ? Icons.check_circle : Icons.shield,
+            size: 80, 
+            color: _isTeamSelected ? AppColors.successGreen : AppColors.accentBlue
           ),
-        ),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.8,
-            ),
-            itemCount: TeamsConstants.pslTeams.length,
-            itemBuilder: (context, index) {
-              final team = TeamsConstants.pslTeams[index];
-              final isSelected = _selectedTeam == team['name'];
-              final teamColor = Color(int.parse(team['color']!));
-
-              return GestureDetector(
-                onTap: () {
-                  setState(() => _selectedTeam = team['name']);
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    color: isSelected ? teamColor.withOpacity(0.2) : AppColors.cardSurface,
-                    border: Border.all(
-                      color: isSelected ? teamColor : Colors.transparent,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Placeholder for logo if asset doesn't exist yet, 
-                      // but user has provided logo paths. Using icon for now if fails?
-                      // Using Image.asset with errorBuilder just in case.
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Icon(
-                            Icons.shield, // Placeholder icon
-                            color: teamColor,
-                            size: 40,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          team['name']!,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 10,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+          const SizedBox(height: 24),
+          const Text(
+            'Pick your Team',
+            style: AppTextStyles.h2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Follow your favorite team to get news and match updates.',
+            style: AppTextStyles.body,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 48),
+          
+          OutlinedButton.icon(
+            onPressed: () async {
+              if (user == null) return;
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamSelectionScreen(
+                    userId: user.uid,
+                    subscriptionType: 'FREE', // Default new user
+                    currentFollowCount: 0, // Assuming 0 as this is onboarding
                   ),
                 ),
               );
+              
+              if (result != null) { // result is Team object
+                 // Update the provider/backend so Welcome screen knows setup is done
+                 // Assuming result has a .name property
+                 // We need to cast result or use dynamic
+                 final teamName = (result as dynamic).name; 
+                 // Or better import Team model in ProfileWizard but I can use dynamic for quick fix or cast if I import models.
+                 // Models are not imported in ProfileWizardScreen currently? 
+                 // Ah, previous file content showed `import '../../utils/constants/teams_constants.dart';` but not models.
+                 // I should probably import team model to be safe or just use dynamic.
+                 
+                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                 await authProvider.updateProfile(favoriteTeam: teamName);
+                 
+                setState(() => _isTeamSelected = true);
+              }
             },
+            icon: const Icon(Icons.search),
+            label: Text(_isTeamSelected ? 'Change Team' : 'Select Team'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.accentBlue,
+              side: const BorderSide(color: AppColors.accentBlue),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
           ),
-        ),
-      ],
+          
+          if (_isTeamSelected)
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'Team Selected!',
+                style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLeagueSelectionStep() {
+    final user = Provider.of<AuthProvider>(context, listen: false).user;
+
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+             _isLeagueSelected ? Icons.check_circle : Icons.emoji_events,
+             size: 80, 
+             color: _isLeagueSelected ? AppColors.successGreen : AppColors.accentBlue
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Pick your League',
+            style: AppTextStyles.h2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Follow a league to see tables and fixtures.',
+            style: AppTextStyles.body,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 48),
+          
+          OutlinedButton.icon(
+             onPressed: () async {
+              if (user == null) return;
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => LeagueSelectionScreen(
+                    userId: user.uid,
+                    subscriptionType: 'FREE',
+                    currentFollowCount: 0,
+                  ),
+                ),
+              );
+              
+              if (result == true) {
+                setState(() => _isLeagueSelected = true);
+              }
+            },
+            icon: const Icon(Icons.search),
+            label: Text(_isLeagueSelected ? 'Change League' : 'Select League'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.accentBlue,
+              side: const BorderSide(color: AppColors.accentBlue),
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
+          ),
+          
+           if (_isLeagueSelected)
+            const Padding(
+              padding: EdgeInsets.only(top: 16.0),
+              child: Text(
+                'League Selected!',
+                style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

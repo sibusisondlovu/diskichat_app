@@ -47,4 +47,28 @@ class ApiService {
       throw Exception('Error fetching lineups: $e');
     }
   }
+  // Submit feedback
+  Future<void> submitFeedback({
+    String? userId,
+    required String type,
+    required String description,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/feedback'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'userId': userId,
+          'type': type,
+          'description': description,
+        }),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('Failed to submit feedback: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error submitting feedback: $e');
+    }
+  }
 }

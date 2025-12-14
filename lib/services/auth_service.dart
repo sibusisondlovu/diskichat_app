@@ -33,10 +33,10 @@ class AuthService {
       password: password,
     );
     
-    // Create preliminary profile
-    if (credential.user != null) {
-      await createUserProfile(credential.user!);
-    }
+    // Create preliminary profile - REMOVED to force Wizard flow
+    // if (credential.user != null) {
+    //   await createUserProfile(credential.user!);
+    // }
     
     return credential;
   }
@@ -82,7 +82,7 @@ class AuthService {
       if (country != null) updates['country'] = country;
       if (bio != null) updates['bio'] = bio;
 
-      await _firestore.collection('users').doc(userId).update(updates);
+      await _firestore.collection('users').doc(userId).set(updates, SetOptions(merge: true));
     } catch (e) {
       print('Error updating profile: $e');
       rethrow;

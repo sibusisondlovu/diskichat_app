@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/routes.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import '../../services/image_upload_service.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
 import '../../components/avatars/custom_avatar.dart';
@@ -17,6 +20,12 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _imageUploadService = ImageUploadService();
+  final _picker = ImagePicker();
+  
+  bool _isUploadingImage = false;
+  String? _newAvatarUrl;
+
   late TextEditingController _displayNameController;
   late TextEditingController _usernameController;
   late TextEditingController _bioController;
@@ -63,17 +72,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   // Avatar
                   Stack(
                     children: [
-                      CustomAvatar(
-                        imageUrl: profile?.avatarUrl,
-                        size: 100,
-                      ),
+                      // Avatar with loading indicator
+                      if (_isUploadingImage)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            color: AppColors.cardSurface,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        )
+                      else
+                        CustomAvatar(
+                          imageUrl: _newAvatarUrl ?? profile?.avatarUrl,
+                          size: 100,
+                        ),
+                      
+                      // Edit button
                       Positioned(
                         bottom: 0,
                         right: 0,
                         child: GestureDetector(
-                          onTap: () {
-                            // TODO: Image picker
-                          },
+                          onTap: _isUploadingImage ? null : _pickAndUploadImage,
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
@@ -142,7 +165,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   // Save button
                   GradientButton(
                     text: 'Save Changes',
-                    isLoading: authProvider.isLoading,
+                    isLoading: authProvider.isLoading || _isUploadingImage,
                     onPressed: () => _saveProfile(authProvider),
                   ),
                 ],
@@ -162,6 +185,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       username: _usernameController.text.trim(),
       favoriteTeam: _favoriteTeamController.text.trim(),
       bio: _bioController.text.trim(),
+      avatarUrl: _newAvatarUrl,
     );
 
     if (success && mounted) {
@@ -172,6 +196,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       );
       AppRoutes.navigateBack(context);
+    }
+  }
+  Future<void> _pickAndUploadImage() async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        imageQuality: 75,
+      );
+
+      if (image == null) return;
+
+      setState(() {
+        _isUploadingImage = true;
+      });
+
+      final File file = File(image.path);
+      final String downloadUrl = await _imageUploadService.uploadImage(file);
+
+      if (mounted) {
+        setState(() {
+          _newAvatarUrl = downloadUrl;
+          _isUploadingImage = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isUploadingImage = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error uploading image: $e'),
+            backgroundColor: AppColors.errorRed,
+          ),
+        );
+      }
     }
   }
 }

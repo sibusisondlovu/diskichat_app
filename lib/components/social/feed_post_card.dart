@@ -3,6 +3,8 @@ import '../../data/models/post_model.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import 'package:intl/intl.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import '../../utils/constants/teams_constants.dart';
 
 class FeedPostCard extends StatelessWidget {
   final PostModel post;
@@ -43,19 +45,59 @@ class FeedPostCard extends StatelessWidget {
                 backgroundColor: AppColors.primaryLight,
                 backgroundImage: post.userAvatar != null ? NetworkImage(post.userAvatar!) : null,
                 child: post.userAvatar == null 
-                    ? const Icon(Icons.person, color: Colors.white) 
+                    ? const Icon(Icons.person, color: Colors.white, size: 20) 
                     : null,
               ),
               const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(post.username, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold)),
-                  Text(
-                    DateFormat.yMMMd().add_jm().format(post.createdAt),
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textGray),
-                  ),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Name & Team Row
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            post.username, 
+                            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (post.userTeam != null) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: AppColors.textMuted.withOpacity(0.2)),
+                            ),
+                            child: Row(
+                              children: [
+                                Image.asset(
+                                  TeamsConstants.getLogoPath(post.userTeam!),
+                                  width: 14,
+                                  height: 14,
+                                  errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  post.userTeam!, 
+                                  style: const TextStyle(fontSize: 10, color: AppColors.textGray, fontWeight: FontWeight.w600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      timeago.format(post.createdAt),
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textGray),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

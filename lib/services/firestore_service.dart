@@ -278,8 +278,12 @@ class FirestoreService {
 
   // Get Feed Stream
   Stream<List<PostModel>> getFeed() {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    
     return _firestore
         .collection('posts')
+        .where('createdAt', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
