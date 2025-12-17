@@ -3,121 +3,83 @@ import '../services/firestore_service.dart';
 import '../services/api_service.dart';
 import '../data/models/match_model.dart';
 import '../services/mock_data_service.dart';
+import '../services/subscription_service.dart';
+import 'auth_provider.dart';
 
 class MatchProvider extends ChangeNotifier {
   final FirestoreService _firestoreService = FirestoreService();
   final ApiService _apiService = ApiService();
+  AuthProvider? _authProvider; // Can be null if not using ProxyProvider or passed in init
+  final SubscriptionService _subscriptionService = SubscriptionService();
 
-  List<MatchModel> _allMatches = [];
-  List<MatchModel> _liveMatches = [];
-  List<MatchModel> _todayMatches = [];
+  // MatchProvider({AuthProvider? authProvider}) : _authProvider = authProvider; 
+  // removed constuctor dependencyinjection to favor proxy update
+  MatchProvider();
+
+  void updateAuth(AuthProvider auth) {
+    _authProvider = auth;
+    notifyListeners();
+  }
+
+  List<MatchModel> _matches = [];
   MatchModel? _selectedMatch;
 
   bool _isLoading = false;
   String? _errorMessage;
-  String _selectedFilter = 'all'; // all, live, today
 
   // Getters
-  List<MatchModel> get allMatches => _allMatches;
-  List<MatchModel> get liveMatches => _liveMatches;
-  List<MatchModel> get todayMatches => _todayMatches;
+  List<MatchModel> get matches => _matches;
   MatchModel? get selectedMatch => _selectedMatch;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  String get selectedFilter => _selectedFilter;
 
-  List<MatchModel> get displayedMatches {
-    switch (_selectedFilter) {
-      case 'live':
-        return _liveMatches;
-      case 'today':
-        return _todayMatches;
-      default:
-        return _allMatches;
-    }
-  }
-
-  // Set filter
-  void setFilter(String filter) {
-    _selectedFilter = filter;
-    notifyListeners();
-  }
-
-  // Load mock matches
-  // Now only returns upcoming/finished mock matches to avoid overwriting real live data
-  List<MatchModel> _getMockUpcomingMatches() {
-    return MockDataService.getMockMatches()
-        .where((m) => m.status != 'live')
-        .toList();
-  }
-
-  // Load all matches (Live from API + Upcoming from Mock)
+  // Load all matches from API (Unified Request)
   Future<void> loadMatches() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
     
     try {
-      // 1. Fetch Live Matches from API
-      final liveMatches = await _apiService.getLiveMatches();
-      _liveMatches = liveMatches;
+      debugPrint('MatchProvider: Fetching matches from API...');
       
-      // 2. Fetch Mock Upcoming (since we don't have API for upcoming yet)
-      final upcomingMatches = _getMockUpcomingMatches();
-      
-      // 3. Combine
-      _allMatches = [..._liveMatches, ...upcomingMatches];
-      
-      // 4. Update Today (simplified)
-      _todayMatches = _allMatches;
-      
-    } catch (e) {
-      debugPrint('Error loading matches: $e');
-      _errorMessage = 'Failed to load matches';
-      
-      // Fallback: If API fails, show what we have (mock upcoming) 
-      // or should we show mock live too? Let's stick to mock upcoming to avoid confusion.
-      _allMatches = _getMockUpcomingMatches();
-      _liveMatches = []; 
-      _todayMatches = _allMatches;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
+      // 1. Fetch Matches from API (Now returns ALL matches: Live, Upcoming, Finished)
+      var fetchedMatches = await _apiService.getLiveMatches();
+      debugPrint('MatchProvider: Fetched ${fetchedMatches.length} matches from API');
 
-  // Load live matches
-  Future<void> loadLiveMatches() async {
-    _isLoading = true;
-    _errorMessage = null; 
-    notifyListeners();
-    
-    try {
-      final matches = await _apiService.getLiveMatches();
-      _liveMatches = matches;
-      
-      // Update all matches to include these new live ones
-      final upcomingMatches = _getMockUpcomingMatches();
-      _allMatches = [..._liveMatches, ...upcomingMatches];
-      _todayMatches = _allMatches;
-      
-      if (_liveMatches.isEmpty) {
-        debugPrint('No live matches found from API');
+      // Apply Subscription Limit
+      if (_authProvider != null && _authProvider!.userProfile != null) {
+        final subType = _authProvider!.userProfile!.subscriptionType;
+        final limit = _subscriptionService.getMatchViewLimit(subType);
+        debugPrint('MatchProvider: User Subscription: $subType, Limit: $limit');
+        
+        if (fetchedMatches.length > limit) {
+          fetchedMatches = fetchedMatches.sublist(0, limit);
+        }
+      } else {
+        // Default to basic (1 match) if no auth provider yet
+         debugPrint('MatchProvider: No User Profile, defaulting to limit 1');
+         if (fetchedMatches.isNotEmpty) {
+           fetchedMatches = fetchedMatches.sublist(0, 1);
+         }
       }
+
+      // 2. Set State
+      _matches = fetchedMatches;
+      
+      debugPrint('MatchProvider: display list size: ${_matches.length}');
+      
     } catch (e) {
-      debugPrint('Error loading live matches: $e');
-      _errorMessage = 'Failed to load live matches.';
+      debugPrint('MatchProvider Error: $e');
+      _errorMessage = 'Failed to load matches: $e';
+      _matches = [];
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Load today's matches
-  void loadTodayMatches() {
-     // Reuse loadMatches for now as it sets _todayMatches
-     loadMatches();
-  }
+  // Helper alias if needed by older code, but preferably remove usage
+  Future<void> loadLiveMatches() => loadMatches();
 
   // Select match
   void selectMatch(MatchModel match) {

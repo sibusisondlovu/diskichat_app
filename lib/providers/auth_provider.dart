@@ -118,6 +118,7 @@ class AuthProvider extends ChangeNotifier {
     String? favoriteTeamLogo,
     String? country,
     String? bio,
+    String? subscriptionType,
   }) async {
     if (_user == null) return false;
 
@@ -135,6 +136,7 @@ class AuthProvider extends ChangeNotifier {
         favoriteTeamLogo: favoriteTeamLogo,
         country: country,
         bio: bio,
+        subscriptionType: subscriptionType,
       );
 
       await loadUserProfile();

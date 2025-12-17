@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/avatars/custom_avatar.dart';
 import '../../services/competitions_service.dart';
 import '../../services/follow_service.dart';
 import '../../services/subscription_service.dart';
@@ -145,11 +146,10 @@ class _LeagueSelectionScreenState extends State<LeagueSelectionScreen> {
                     itemBuilder: (context, index) {
                       final league = _filteredLeagues[index];
                       return ListTile(
-                        leading: Image.network(
-                          league.logo,
-                          width: 40,
-                          height: 40,
-                          errorBuilder: (_, __, ___) => const Icon(Icons.error),
+                        leading: CustomAvatar(
+                          imageUrl: league.logo,
+                          size: 40,
+                          placeholder: '?',
                         ),
                         title: Text(
                           league.name,

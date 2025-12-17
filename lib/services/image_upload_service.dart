@@ -26,7 +26,26 @@ class ImageUploadService {
       
       return downloadUrl;
     } catch (e) {
-      throw Exception('Failed to upload image to Firebase Storage: $e');
+      throw Exception('Failed to upload image: $e');
+    }
+  }
+
+  Future<String> uploadVideo(File file) async {
+    try {
+      final String fileName = '${_uuid.v4()}.mp4';
+      final Reference ref = _storage.ref().child('posts').child('videos').child(fileName);
+
+      final UploadTask uploadTask = ref.putFile(
+        file,
+        SettableMetadata(contentType: 'video/mp4'),
+      );
+
+      final TaskSnapshot snapshot = await uploadTask;
+      final String downloadUrl = await snapshot.ref.getDownloadURL();
+      
+      return downloadUrl;
+    } catch (e) {
+      throw Exception('Failed to upload video: $e');
     }
   }
 

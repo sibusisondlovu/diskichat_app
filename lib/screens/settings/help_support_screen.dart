@@ -6,16 +6,20 @@ class HelpSupportScreen extends StatelessWidget {
 
   final List<Map<String, String>> _faqs = const [
     {
-      'question': 'How do I earn points?',
-      'answer': 'You earn points by correctly predicting match scores, creating popular discussion posts, and maintaining a daily login streak. Engage more to rank up!',
+      'question': 'How do I earn Diskis?',
+      'answer': 'You earn Diskis by correctly predicting match scores, creating popular discussion posts, and maintaining a daily login streak. Engage more to rank up!',
     },
     {
       'question': 'How can I change my profile avatar?',
       'answer': 'Go to your Profile page, tap "Edit Profile", and click on the camera icon on your avatar to upload a new picture.',
     },
     {
+      'question': 'How do I level up?',
+      'answer': 'The ranks are Cow, Donkey, Zebra, Lion, and Goat. Your rank is determined by your total Diskis.',
+    },
+    {
       'question': 'What are the different ranks?',
-      'answer': 'The ranks are Amateur, Semi-Pro, Pro, World Class, and Legend. Your rank is determined by your total points.',
+      'answer': 'The ranks are Amateur, Semi-Pro, Pro, World Class, and Legend. Your rank is determined by your total Diskis.',
     },
     {
       'question': 'Can I follow other users?',
@@ -26,8 +30,8 @@ class HelpSupportScreen extends StatelessWidget {
       'answer': 'Match rooms are automatically created for every live match. Just tap on a live match to join the conversation.',
     },
     {
-      'question': 'Is DiskiChat free?',
-      'answer': 'Yes! DiskiChat is completely free to download and use.',
+      'question': 'Is Diskichat free?',
+      'answer': 'Yes! Diskichat is completely free to download and use.',
     },
     {
       'question': 'How do I report abusive content?',
@@ -39,7 +43,7 @@ class HelpSupportScreen extends StatelessWidget {
     },
     {
       'question': 'Do you support dark mode?',
-      'answer': 'Yes, DiskiChat is designed with a dark-themed "Stadium Night" mode by default for the best viewing experience.',
+      'answer': 'Yes, Diskichat is designed with a dark-themed "Stadium Night" mode by default for the best viewing experience.',
     },
     {
       'question': 'How can I contact support?',

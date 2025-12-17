@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
+import 'text_styles.dart';
 
 class AppTheme {
   static final ThemeData darkTheme = ThemeData.dark().copyWith(
@@ -9,6 +10,8 @@ class AppTheme {
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.primaryDark,
       elevation: 0,
+      centerTitle: true,
+      titleTextStyle: AppTextStyles.appBarTitle,
     ),
     // Add other properties as needed
   );

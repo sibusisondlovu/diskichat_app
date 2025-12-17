@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/models/match_model.dart';
 import '../data/models/message_model.dart';
 import '../data/models/post_model.dart';
+import '../data/models/comment_model.dart';
+import '../data/models/feedback_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -293,13 +295,10 @@ class FirestoreService {
 
   // Create Post
   Future<void> createPost(PostModel post) async {
-    // We let Firestore generate ID, so we use collection.add or set with custom ID?
-    // PostModel ID is locally generated? No, let's use add().
-    // We passed a PostModel, but we should probably just pass the Map or ignore ID.
     await _firestore.collection('posts').add(post.toMap());
   }
 
-  // Like Post
+  // Like Post (with Gamification)
   Future<void> likePost(String postId, String userId) async {
     final postRef = _firestore.collection('posts').doc(postId);
     final likeRef = postRef.collection('likes').doc(userId);
@@ -309,6 +308,15 @@ class FirestoreService {
       // Unlike
       await likeRef.delete();
       await postRef.update({'likesCount': FieldValue.increment(-1)});
+      // Note: We don't deduct points on unlike to avoid negative sentiment,
+      // but typically gamification is strictly additive or we can deduct.
+      // For now, let's keep it additive (only award on first like) OR deduct.
+      // Let's deduct to prevent spam toggling.
+      final postDoc = await postRef.get();
+      final ownerId = postDoc.data()?['userId'];
+      if (ownerId != null) {
+          await _awardPoints(ownerId, -5); // Deduct 5 Diski
+      }
     } else {
       // Like
       await likeRef.set({
@@ -316,6 +324,13 @@ class FirestoreService {
         'createdAt': FieldValue.serverTimestamp(),
       });
       await postRef.update({'likesCount': FieldValue.increment(1)});
+      
+      // Award Diski to Post Owner
+      final postDoc = await postRef.get();
+      final ownerId = postDoc.data()?['userId'];
+      if (ownerId != null && ownerId != userId) { // Don't award for self-likes
+         await _awardPoints(ownerId, 5); // 5 Diski per like
+      }
     }
   }
 
@@ -328,5 +343,66 @@ class FirestoreService {
         .doc(userId)
         .get();
     return likeDoc.exists;
+  }
+  
+  // ========== COMMENTS ==========
+
+  // Get Comments Stream
+  Stream<List<CommentModel>> getComments(String postId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+        .map((doc) => CommentModel.fromMap(doc.data(), doc.id))
+        .toList());
+  }
+
+  // Add Comment (with Gamification)
+  Future<void> addComment(CommentModel comment) async {
+    final postRef = _firestore.collection('posts').doc(comment.postId);
+    
+    // Add comment
+    await postRef.collection('comments').add(comment.toMap());
+    
+    // Update count
+    await postRef.update({'commentsCount': FieldValue.increment(1)});
+    
+    // Check for 100 comments milestone
+    final postDoc = await postRef.get();
+    final currentCount = postDoc.data()?['commentsCount'] ?? 0;
+    final ownerId = postDoc.data()?['userId'];
+
+    if (currentCount == 100 && ownerId != null) {
+      // Award HUGE bonus for 100 comments
+       await _awardPoints(ownerId, 500); // 500 Diski
+    }
+  }
+
+  // ========== GAMIFICATION ==========
+  
+  Future<void> _awardPoints(String userId, int points) async {
+    final userRef = _firestore.collection('users').doc(userId);
+    await userRef.update({
+      'points': FieldValue.increment(points),
+    });
+  }
+
+  // ========== FEEDBACK ==========
+
+  Future<void> submitFeedback(FeedbackModel feedback) async {
+    await _firestore.collection('feedback').add(feedback.toMap());
+  }
+
+  // ========== ANALYTICS ==========
+
+  Future<void> logSubscriptionAttempt(String userId, String plan) async {
+    await _firestore.collection('subscription_attempts').add({
+      'userId': userId,
+      'plan': plan,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 }

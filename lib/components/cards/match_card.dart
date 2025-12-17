@@ -6,10 +6,11 @@ import '../../services/firestore_service.dart';
 import '../../screens/chat/chat_room_screen.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
-import '../../utils/themes/gradients.dart';
+
 import '../../utils/helpers/time_helper.dart';
 import '../../utils/routes.dart';
 import '../badges/live_indicator.dart';
+import '../avatars/custom_avatar.dart';
 
 
 class MatchCard extends StatelessWidget {
@@ -31,12 +32,16 @@ class MatchCard extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          gradient: AppGradients.matchCard,
+          color: AppColors.cardSurface, // Solid color
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Colors.white.withOpacity(0.1), // Clear edge
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 8,
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
@@ -47,7 +52,13 @@ class MatchCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.cardSurface.withValues(alpha: 0.5),
+                // color: AppColors.cardSurface.withValues(alpha: 0.5), // Removed for solid look
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white.withOpacity(0.05),
+                    width: 1,
+                  ),
+                ),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -99,15 +110,30 @@ class MatchCard extends StatelessWidget {
                   ),
 
                   // Live indicator or time
-                  if (match.isLive)
-                    const LiveIndicator()
-                  else
-                    Text(
-                      TimeHelper.formatMatchTime(match.matchDate),
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textGray,
+                  // Status Banner
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: match.isLive 
+                          ? AppColors.liveGreen 
+                          : match.isUpcoming 
+                              ? AppColors.primaryBlue 
+                              : Colors.grey,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      match.isLive 
+                          ? 'LIVE MATCH' 
+                          : match.isUpcoming 
+                              ? 'PREMATCH' 
+                              : 'POSTMATCH',
+                      style: AppTextStyles.caption.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
                       ),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -156,6 +182,16 @@ class MatchCard extends StatelessWidget {
                                   color: AppColors.textMuted,
                                 ),
                               ),
+                              if (match.isUpcoming) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  TimeHelper.formatMatchTime(match.matchDate),
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: AppColors.accentBlue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             if (match.isLive || match.isFinished)
                               Text(
                                 match.elapsedTime ?? match.statusDisplay,
@@ -201,12 +237,15 @@ class MatchCard extends StatelessWidget {
                         width: double.infinity,
                         height: 44,
                         decoration: BoxDecoration(
-                          gradient: isJoined 
-                              ? AppGradients.glass // Use distinct style for Resume
-                              : AppGradients.primaryButton,
-                          color: isJoined ? AppColors.accentBlue : null, 
+                          color: isJoined 
+                              ? AppColors.primaryLight 
+                              : match.isLive 
+                                  ? AppColors.liveGreen 
+                                  : match.isUpcoming 
+                                      ? AppColors.primaryBlue 
+                                      : Colors.grey[700],
                           borderRadius: BorderRadius.circular(12),
-                          border: isJoined ? Border.all(color: AppColors.accentBlue) : null,
+                          // No border/gradient for solid button look
                         ),
                         child: Material(
                           color: Colors.transparent,
@@ -228,7 +267,13 @@ class MatchCard extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 Text(
-                                  isJoined ? 'RESUME MATCH ROOM' : 'JOIN MATCH ROOM',
+                                  isJoined 
+                                      ? 'RESUME MATCH ROOM' 
+                                      : match.isUpcoming 
+                                          ? 'JOIN PREMATCH'
+                                          : match.isLive
+                                              ? 'JOIN LIVE MATCH'
+                                              : 'JOIN POSTMATCH',
                                   style: AppTextStyles.bodyMedium.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: AppColors.textWhite,
@@ -261,13 +306,11 @@ class MatchCard extends StatelessWidget {
       return Container(
         width: 60,
         height: 60,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColors.cardSurface,
-          image: DecorationImage(
-            image: NetworkImage(logoUrl),
-            fit: BoxFit.cover,
-          ),
+        alignment: Alignment.center,
+        child: CustomAvatar(
+          imageUrl: logoUrl,
+          size: 60,
+          placeholder: '',
         ),
       );
     }

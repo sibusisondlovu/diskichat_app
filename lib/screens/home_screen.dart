@@ -27,11 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load matches on init
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final matchProvider = Provider.of<MatchProvider>(context, listen: false);
-      matchProvider.loadMatches();
-    });
   }
 
   @override
@@ -68,11 +63,11 @@ class _HomeScreenState extends State<HomeScreen> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.stadium),
-              label: 'Matches',
+              label: 'Stadium',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.dynamic_feed), // Changed icon
-              label: 'Feed', // Changed label
+              icon: Icon(Icons.sports_soccer), 
+              label: 'Shibobo', 
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),

@@ -18,7 +18,10 @@ class DiskichatApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => MatchProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, MatchProvider>(
+          create: (_) => MatchProvider(),
+          update: (_, auth, previous) => (previous ?? MatchProvider())..updateAuth(auth),
+        ),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: MaterialApp(

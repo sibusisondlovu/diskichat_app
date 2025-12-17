@@ -5,51 +5,78 @@ class RankHelper {
   static UserRank getRankFromString(String rank) {
     try {
       return UserRank.values.firstWhere(
-        (e) => e.toString().split('.').last == rank,
-        orElse: () => UserRank.amateur,
+        (e) => e.toString().split('.').last == rank.toLowerCase(),
+        orElse: () => UserRank.cow,
       );
     } catch (_) {
-      return UserRank.amateur;
+      return UserRank.cow;
     }
   }
   
   static double getRankProgress(int points, UserRank rank) {
-    return 0.5; // dummy implementation
+    // Return 0.0 to 1.0 based on points within current rank bracket
+    int prevThreshold = 0;
+    int nextThreshold = 100;
+
+    switch (rank) {
+      case UserRank.cow:
+        prevThreshold = 0;
+        nextThreshold = 100;
+        break;
+      case UserRank.donkey:
+        prevThreshold = 100;
+        nextThreshold = 500;
+        break;
+      case UserRank.zebra:
+        prevThreshold = 500;
+        nextThreshold = 2000;
+        break;
+      case UserRank.lion:
+        prevThreshold = 2000;
+        nextThreshold = 5000;
+        break;
+      case UserRank.goat:
+        return 1.0; // Max rank
+    }
+    
+    if (points >= nextThreshold) return 1.0;
+    if (points <= prevThreshold) return 0.0;
+    
+    return (points - prevThreshold) / (nextThreshold - prevThreshold);
   }
   
 
   static String getRankDisplayName(UserRank rank) {
-    return rank.toString().split('.').last.toUpperCase().replaceAll('_', ' ');
+    return rank.toString().split('.').last.toUpperCase();
   }
 
   static String getRankIcon(UserRank rank) {
     switch (rank) {
-      case UserRank.amateur:
-        return '🌱';
-      case UserRank.semi_pro:
-        return '⭐';
-      case UserRank.pro:
-        return '🌟';
-      case UserRank.world_class:
-        return '🏆';
-      case UserRank.legend:
-        return '👑';
+      case UserRank.cow:
+        return '🐮';
+      case UserRank.donkey:
+        return '🐴';
+      case UserRank.zebra:
+        return '🦓';
+      case UserRank.lion:
+        return '🦁';
+      case UserRank.goat:
+        return '🐐';
     }
   }
 
   static dynamic getRankColor(UserRank rank) {
-    // Basic color implementation - you might want to use AppColors here
     switch (rank) {
-      case UserRank.amateur:
-        return Color(0xFF8D6E63); // Brown
-      case UserRank.semi_pro:
-        return Color(0xFFB0BEC5); // Silver/Grey
-      case UserRank.pro:
-        return Color(0xFFFFD700); // Gold
-      case UserRank.world_class:
-        return Color(0xFF00BFA5); // Teal/Emerald
-      case UserRank.legend:
-        return Color(0xFF9C27B0); // Purple
+      case UserRank.cow:
+        return Colors.brown; 
+      case UserRank.donkey:
+        return Colors.grey; 
+      case UserRank.zebra:
+        return Colors.white; // Or stripped logic elsewhere, but white for text/icon usually
+      case UserRank.lion:
+        return Colors.amber; 
+      case UserRank.goat:
+        return Colors.purpleAccent; 
     }
   }
 }

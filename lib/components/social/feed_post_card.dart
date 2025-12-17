@@ -1,159 +1,182 @@
 import 'package:flutter/material.dart';
+import '../../components/avatars/custom_avatar.dart';
 import '../../data/models/post_model.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../utils/constants/teams_constants.dart';
+import 'comments_sheet.dart';
+import 'video_post_player.dart';
 
 class FeedPostCard extends StatelessWidget {
   final PostModel post;
   final VoidCallback onLike;
-  final VoidCallback onComment;
 
   const FeedPostCard({
     super.key,
     required this.post,
     required this.onLike,
-    required this.onComment,
   });
+
+  void _showComments(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CommentsSheet(postId: post.id),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      margin: const EdgeInsets.only(bottom: 1), // Instagram-like separation
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: const BoxDecoration(
         color: AppColors.cardSurface,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColors.primaryLight,
-                backgroundImage: post.userAvatar != null ? NetworkImage(post.userAvatar!) : null,
-                child: post.userAvatar == null 
-                    ? const Icon(Icons.person, color: Colors.white, size: 20) 
-                    : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name & Team Row
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(
-                            post.username, 
-                            style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (post.userTeam != null) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryLight.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: AppColors.textMuted.withOpacity(0.2)),
-                            ),
-                            child: Row(
-                              children: [
-                                  post.userTeamLogo != null 
-                                    ? Image.network(
-                                        post.userTeamLogo!,
-                                        width: 14,
-                                        height: 14,
-                                        errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
-                                      )
-                                    : Image.asset(
-                                        TeamsConstants.getLogoPath(post.userTeam!),
-                                        width: 14,
-                                        height: 14,
-                                        errorBuilder: (c, o, s) => const Icon(Icons.shield, size: 14, color: AppColors.textMuted),
-                                      ),
-                                  const SizedBox(width: 4),
-                                Text(
-                                  post.userTeam!, 
-                                  style: const TextStyle(fontSize: 10, color: AppColors.textGray, fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      timeago.format(post.createdAt),
-                      style: AppTextStyles.caption.copyWith(color: AppColors.textGray),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                CustomAvatar(
+                  imageUrl: post.userAvatar,
+                  size: 32, // Smaller styling
+                  placeholder: '?',
                 ),
-              ),
-            ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post.username, 
+                        style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      if (post.userTeam != null)
+                        Text(
+                          post.userTeam!,
+                          style: AppTextStyles.caption.copyWith(color: AppColors.textGray),
+                        ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.more_horiz, color: AppColors.textGray),
+                  onPressed: () {},
+                ),
+              ],
+            ),
           ),
+          
+          const SizedBox(height: 8),
+          
+          // Media (Image or Video)
+          if (post.imageUrl != null)
+            GestureDetector(
+              onDoubleTap: onLike,
+              child: Image.network(
+                post.imageUrl!, 
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    width: double.infinity,
+                    color: Colors.black12,
+                    child: const Center(child: CircularProgressIndicator()),
+                  );
+                },
+              ),
+            )
+          else if (post.videoUrl != null)
+             SizedBox(
+               height: MediaQuery.of(context).size.height * 0.4, // 40% of screen height
+               child: VideoPostPlayer(videoUrl: post.videoUrl!),
+             )
+          else 
+             // Text only post fallback or nothing
+             const SizedBox.shrink(),
           
           const SizedBox(height: 12),
           
-          // Content
-          Text(post.content, style: AppTextStyles.body),
-          
-          if (post.imageUrl != null) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: double.infinity,
-                height: 300,
-                child: Image.network(
-                  post.imageUrl!, 
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ],
-          
-          const SizedBox(height: 16),
-          
           // Actions
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildActionButton(
-                icon: post.isLiked ? Icons.favorite : Icons.favorite_border,
-                color: post.isLiked ? Colors.red : AppColors.textGray,
-                label: '${post.likesCount}',
-                onTap: onLike,
-              ),
-              _buildActionButton(
-                icon: Icons.chat_bubble_outline,
-                color: AppColors.textGray,
-                label: '${post.commentsCount}',
-                onTap: onComment,
-              ),
-              _buildActionButton(
-                icon: Icons.share,
-                color: AppColors.textGray,
-                label: 'Share',
-                onTap: () {},
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                 IconButton(
+                   icon: Icon(post.isLiked ? Icons.favorite : Icons.favorite_border, color: post.isLiked ? Colors.red : Colors.white),
+                   onPressed: onLike,
+                   visualDensity: VisualDensity.compact,
+                 ),
+                 IconButton(
+                   icon: const Icon(Icons.chat_bubble_outline, color: Colors.white),
+                   onPressed: () => _showComments(context),
+                   visualDensity: VisualDensity.compact,
+                 ),
+                 IconButton(
+                   icon: const Icon(Icons.send, color: Colors.white),
+                   onPressed: () {}, // Share
+                   visualDensity: VisualDensity.compact,
+                 ),
+                 const Spacer(),
+                 IconButton(
+                   icon: const Icon(Icons.bookmark_border, color: Colors.white),
+                   onPressed: () {},
+                   visualDensity: VisualDensity.compact,
+                 ),
+              ],
+            ),
+          ),
+          
+          // Likes & Caption
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (post.likesCount > 0)
+                  Text('${post.likesCount} likes', style: AppTextStyles.bodySmall.copyWith(fontWeight: FontWeight.bold)),
+                
+                const SizedBox(height: 4),
+                
+                RichText(
+                  text: TextSpan(
+                    style: AppTextStyles.bodySmall,
+                    children: [
+                      TextSpan(text: post.username, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      const TextSpan(text: ' '),
+                      TextSpan(text: post.content),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 4),
+                
+                if (post.commentsCount > 0)
+                  GestureDetector(
+                    onTap: () => _showComments(context),
+                    child: Text(
+                      'View all ${post.commentsCount} comments', 
+                      style: AppTextStyles.caption.copyWith(color: AppColors.textGray),
+                    ),
+                  ),
+                  
+                const SizedBox(height: 4),
+                Text(
+                   timeago.format(post.createdAt),
+                   style: AppTextStyles.caption.copyWith(color: AppColors.textGray, fontSize: 10),
+                ),
+              ],
+            ),
           ),
         ],
       ),

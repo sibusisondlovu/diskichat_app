@@ -12,6 +12,7 @@ class UserModel {
   final String? favoriteTeamLogo;
   final String? country;
   final String? bio;
+  final String subscriptionType; // basic, pro, gold
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -27,6 +28,7 @@ class UserModel {
     this.favoriteTeamLogo,
     this.country,
     this.bio,
+    this.subscriptionType = 'basic',
     required this.createdAt,
     this.updatedAt,
   });
@@ -45,6 +47,7 @@ class UserModel {
       favoriteTeamLogo: map['favoriteTeamLogo'],
       country: map['country'],
       bio: map['bio'],
+      subscriptionType: map['subscriptionType'] ?? 'basic',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -64,6 +67,7 @@ class UserModel {
       'favoriteTeamLogo': favoriteTeamLogo,
       'country': country,
       'bio': bio,
+      'subscriptionType': subscriptionType,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
@@ -81,6 +85,7 @@ class UserModel {
     String? favoriteTeam,
     String? country,
     String? bio,
+    String? subscriptionType,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -95,6 +100,7 @@ class UserModel {
       favoriteTeam: favoriteTeam ?? this.favoriteTeam,
       country: country ?? this.country,
       bio: bio ?? this.bio,
+      subscriptionType: subscriptionType ?? this.subscriptionType,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

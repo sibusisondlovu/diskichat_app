@@ -21,4 +21,17 @@ class SubscriptionService {
   int getLeagueLimit(String subscriptionType) {
     return subscriptionType == 'PRO' ? proLeagueLimit : freeLeagueLimit;
   }
+
+  int getMatchViewLimit(String subscriptionType) {
+    switch (subscriptionType.toLowerCase()) {
+      case 'gold':
+      case 'premium':
+        return 5; // Premium gets full access (5 matches for now)
+      case 'pro':
+        return 3;
+      case 'basic':
+      default:
+        return 1;
+    }
+  }
 }

@@ -7,23 +7,30 @@ import '../data/models/lineup_model.dart';
 import '../utils/constants/api_constants.dart';
 
 class ApiService {
-  // Get live matches
+  // Get matches (mapped to /api/matches which now returns ALL)
   Future<List<MatchModel>> getLiveMatches() async {
+    final url = '${ApiConstants.baseUrl}${ApiConstants.matches}';
+    print('ApiService: requesting $url');
     try {
-      final response = await http.get(Uri.parse('${ApiConstants.baseUrl}${ApiConstants.liveMatches}'));
+      final response = await http.get(Uri.parse(url));
 
+      print('ApiService: response status ${response.statusCode}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           final List<dynamic> matchesJson = data['matches'];
+          print('ApiService: parsed ${matchesJson.length} matches');
           return matchesJson.map((json) => MatchModel.fromApi(json)).toList();
         } else {
+          print('ApiService: API returned success=false');
           throw Exception('API returned success: false');
         }
       } else {
+        print('ApiService: failed with ${response.statusCode} - ${response.body}');
         throw Exception('Failed to load matches: ${response.statusCode}');
       }
     } catch (e) {
+      print('ApiService Error: $e');
       throw Exception('Error connecting to Server: $e');
     }
   }

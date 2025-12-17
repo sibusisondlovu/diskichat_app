@@ -70,6 +70,7 @@ class AuthService {
     String? favoriteTeamLogo,
     String? country,
     String? bio,
+    String? subscriptionType,
   }) async {
     try {
       Map<String, dynamic> updates = {
@@ -83,6 +84,7 @@ class AuthService {
       if (favoriteTeamLogo != null) updates['favoriteTeamLogo'] = favoriteTeamLogo;
       if (country != null) updates['country'] = country;
       if (bio != null) updates['bio'] = bio;
+      if (subscriptionType != null) updates['subscriptionType'] = subscriptionType;
 
       await _firestore.collection('users').doc(userId).set(updates, SetOptions(merge: true));
     } catch (e) {

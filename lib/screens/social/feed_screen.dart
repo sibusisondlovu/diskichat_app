@@ -21,7 +21,7 @@ class FeedScreen extends StatelessWidget {
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
         backgroundColor: AppColors.cardSurface,
-        title: Text("Feed", style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textWhite)),
+        title: Text("Shibobo", style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textWhite)),
         centerTitle: true,
         elevation: 0,
       ),
@@ -58,10 +58,8 @@ class FeedScreen extends StatelessWidget {
                    final user = context.read<AuthProvider>().user;
                    if (user != null) {
                      await _firestoreService.likePost(post.id, user.uid);
+                     // Optimistic update if we used a provider, but stream will handle it
                    }
-                },
-                onComment: () {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Comments coming soon!")));
                 },
               );
             },

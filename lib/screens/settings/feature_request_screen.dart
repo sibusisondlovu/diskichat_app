@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../services/api_service.dart';
+import '../../services/firestore_service.dart';
+import '../../data/models/feedback_model.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../components/buttons/gradient_button.dart';
 import '../../components/inputs/custom_text_field.dart';
@@ -16,15 +17,16 @@ class FeatureRequestScreen extends StatefulWidget {
 class _FeatureRequestScreenState extends State<FeatureRequestScreen> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
-  final _apiService = ApiService();
+  final _firestoreService = FirestoreService();
   
-  String _selectedType = 'feature';
+  String _selectedType = 'Feature Request';
   bool _isLoading = false;
 
   final Map<String, String> _typeOptions = {
-    'feature': 'Request a Feature',
-    'bug': 'Report a Bug',
-    'suggestion': 'General Suggestion',
+    'Feature Request': 'Request a Feature',
+    'Bug Report': 'Report a Bug',
+    'General Feedback': 'General Feedback',
+    'Other': 'Other',
   };
 
   @override
@@ -39,13 +41,20 @@ class _FeatureRequestScreenState extends State<FeatureRequestScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = Provider.of<AuthProvider>(context, listen: false).user?.uid;
+      final user = Provider.of<AuthProvider>(context, listen: false).user;
+      final profile = Provider.of<AuthProvider>(context, listen: false).userProfile;
       
-      await _apiService.submitFeedback(
-        userId: userId,
+      final feedback = FeedbackModel(
+        id: '', // Firestore generates
+        userId: user?.uid ?? 'anonymous',
+        username: profile?.username ?? user?.displayName ?? 'Anonymous',
+        userEmail: user?.email ?? 'No Email',
         type: _selectedType,
         description: _descriptionController.text.trim(),
+        createdAt: DateTime.now(),
       );
+      
+      await _firestoreService.submitFeedback(feedback);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -75,7 +84,7 @@ class _FeatureRequestScreenState extends State<FeatureRequestScreen> {
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        title: const Text('Feedback & Requests'),
+        title: const Text('FEEDBACK & REQUESTS'), // Uppercase as requested
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -84,14 +93,6 @@ class _FeatureRequestScreenState extends State<FeatureRequestScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'How can we improve DiskiChat?',
-                style: TextStyle(
-                  color: AppColors.textWhite,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
               const SizedBox(height: 24),
               
               // Type Dropdown
@@ -142,7 +143,7 @@ class _FeatureRequestScreenState extends State<FeatureRequestScreen> {
               const SizedBox(height: 32),
               
               GradientButton(
-                text: 'Submit Feedback',
+                text: 'SUBMIT FEEDBACK',
                 onPressed: _submit,
                 isLoading: _isLoading,
               ),

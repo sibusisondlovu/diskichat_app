@@ -6,7 +6,7 @@ import '../../data/models/post_model.dart';
 import '../../services/image_upload_service.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
-
+import 'package:video_player/video_player.dart'; // Add video_player here for preview
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,21 +20,50 @@ class CreatePostScreen extends StatefulWidget {
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _contentController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
+  
   File? _selectedImage;
+  File? _selectedVideo;
+  VideoPlayerController? _videoController;
+
   bool _isPosting = false;
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    _videoController?.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
         _selectedImage = File(image.path);
+        _selectedVideo = null;
+        _videoController?.dispose();
+        _videoController = null;
+      });
+    }
+  }
+
+  Future<void> _pickVideo() async {
+    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      final file = File(video.path);
+      final controller = VideoPlayerController.file(file);
+      await controller.initialize();
+      
+      setState(() {
+        _selectedVideo = file;
+        _selectedImage = null; // Only one media type
+        _videoController = controller;
       });
     }
   }
 
   void _submitPost() async {
     final text = _contentController.text.trim();
-    if (text.isEmpty && _selectedImage == null) return; 
+    if (text.isEmpty && _selectedImage == null && _selectedVideo == null) return; 
 
     final user = context.read<AuthProvider>().user;
     if (user == null) return;
@@ -43,16 +72,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     try {
       String? imageUrl;
+      String? videoUrl;
       
-      // Upload image if selected
+      final ImageUploadService uploadService = ImageUploadService();
+
       if (_selectedImage != null) {
-        final ImageUploadService uploadService = ImageUploadService();
         imageUrl = await uploadService.uploadImage(_selectedImage!);
+      } else if (_selectedVideo != null) {
+        videoUrl = await uploadService.uploadVideo(_selectedVideo!);
       }
 
     final profile = context.read<AuthProvider>().userProfile;
     
-    // Fallback info if profile is missing (shouldn't happen with wizard, but safety first)
+    // Fallback info if profile is missing
     final String username = profile?.username ?? user.displayName ?? 'Anonymous';
     final String? userTeam = profile?.favoriteTeam;
     final String? userTeamLogo = profile?.favoriteTeamLogo;
@@ -67,6 +99,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         userAvatar: userAvatar,
         content: text,
         imageUrl: imageUrl,
+        videoUrl: videoUrl,
         createdAt: DateTime.now(),
       );
 
@@ -105,7 +138,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           )
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -135,7 +168,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 ],
               ),
 
-             const Spacer(),
+             if (_selectedVideo != null && _videoController != null && _videoController!.value.isInitialized)
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 200,
+                      child: AspectRatio(
+                        aspectRatio: _videoController!.value.aspectRatio,
+                        child: VideoPlayer(_videoController!),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      _videoController?.dispose();
+                      setState(() {
+                         _selectedVideo = null;
+                         _videoController = null;
+                      });
+                    },
+                  ),
+                ],
+              ),
+
+             const SizedBox(height: 20),
             
             // Actions
             Row(
@@ -143,13 +203,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                  IconButton(
                    icon: const Icon(Icons.image, color: AppColors.accentBlue), 
                    onPressed: _pickImage,
+                   tooltip: 'Pick Image',
                  ),
                  IconButton(
                    icon: const Icon(Icons.videocam, color: AppColors.accentBlue), 
-                   onPressed: () {
-                     // Video upload to be implemented
-                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Video upload coming soon!")));
-                   }
+                   onPressed: _pickVideo,
+                   tooltip: 'Pick Video',
                  ),
               ],
             )

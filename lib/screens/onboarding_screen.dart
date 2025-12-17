@@ -19,139 +19,162 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingPage> _pages = [
     OnboardingPage(
-      icon: Icons.chat_bubble_rounded,
-      title: 'Welcome to Diskichat',
-      description: 'Making Beautiful Game More Social',
+      image: 'lib/assets/images/onboarding1.webp',
+      title: 'The Ultimate\nSecond Screen',
+      description: 'Engage live during matches. The perfect companion for every football fan.',
     ),
     OnboardingPage(
-      icon: Icons.sports_soccer,
-      title: 'Join ANY Match\nWorldwide',
-      description:
-      'AFCON, Premier League, Champions League\nYour local derby, your national team\nEvery match has a room',
+      image: 'lib/assets/images/onboarding2.jpg',
+      title: 'Join the\nBanter Rooms',
+      description: 'Troll your rivals, celebrate with your team. Where the real conversation happens.',
     ),
     OnboardingPage(
-      icon: Icons.emoji_events,
-      title: 'Engage & Earn\nYour Status',
-      description:
-      'Amateur → Semi-Pro → Pro\nWorld Class → Legend\n\nEvery comment counts, every vote matters',
+      image: 'lib/assets/images/onboarding3.jpg',
+      title: 'Peer-to-Peer\nBetting',
+      description: 'Challenge friends with Diski Points. Predict the score, winner takes the pot!',
     ),
     OnboardingPage(
-      icon: Icons.auto_awesome,
-      title: 'Smart Football\nInsights',
-      description:
-      'AI match predictions\nLive sentiment analysis\nThe beautiful game, smarter',
+      image: 'lib/assets/images/onboarding4.jpg',
+      title: 'Join the\nCommunity',
+      description: 'Connect with fans worldwide. Your voice matters in the beautiful game.',
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _goToAuth,
-                child: Text(
-                  'Skip',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textGray,
-                  ),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Page Content
+          PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: _pages.length,
+            itemBuilder: (context, index) {
+              return _buildPage(_pages[index]);
+            },
+          ),
+          
+          // Skip Button
+          Positioned(
+            top: 50,
+            right: 24,
+            child: TextButton(
+              onPressed: _goToAuth,
+              child: Text(
+                'Skip',
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+          ),
 
-            // Pages
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                },
-                itemCount: _pages.length,
-                itemBuilder: (context, index) {
-                  return _buildPage(_pages[index]);
-                },
-              ),
-            ),
-
-            // Page indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
+          // Bottom Controls
+          Positioned(
+            bottom: 40,
+            left: 24,
+            right: 24,
+            child: Column(
+              children: [
+                // Dots
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    _pages.length,
                     (index) => _buildDot(index),
-              ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Button
+                _currentPage == _pages.length - 1
+                    ? GradientButton(
+                        text: 'Join Diskichat',
+                        onPressed: _goToAuth,
+                      )
+                    : GradientButton(
+                        text: 'Next',
+                        onPressed: _nextPage,
+                      ),
+              ],
             ),
-
-            const SizedBox(height: 32),
-
-            // Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _currentPage == _pages.length - 1
-                  ? GradientButton(
-                text: 'Join Diskichat',
-                onPressed: _goToAuth,
-              )
-                  : GradientButton(
-                text: 'Next',
-                onPressed: _nextPage,
-              ),
-            ),
-
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPage(OnboardingPage page) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.accentBlue,
-                  AppColors.accentBlue.withOpacity(0.6),
-                ],
-              ),
+    return Column(
+      children: [
+        // Image Section (40% Height)
+        Expanded(
+            flex: 4,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.asset(
+                  page.image,
+                  fit: BoxFit.cover,
+                ),
+                // Gradient Fade to White
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.5, 1.0], 
+                      colors: [
+                        Colors.transparent,
+                        Colors.white,
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: Icon(
-              page.icon,
-              size: 60,
-              color: AppColors.textWhite,
+        ),
+        
+        // Text Section (60% Height approx, actually remaining space)
+        Expanded(
+          flex: 6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                Text(
+                  page.title,
+                  style: AppTextStyles.h1.copyWith(
+                    color: Colors.black, // Dark text for white background
+                    fontSize: 32,
+                    height: 1.2,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  page.description,
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    color: Colors.black54, // Darker gray for white background
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 40),
-          Text(
-            page.title,
-            style: AppTextStyles.h1,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            page.description,
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textGray,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -164,7 +187,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         borderRadius: BorderRadius.circular(4),
         color: _currentPage == index
             ? AppColors.accentBlue
-            : AppColors.textMuted,
+            : AppColors.textGray.withOpacity(0.3),
       ),
     );
   }
@@ -185,12 +208,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 }
 
 class OnboardingPage {
-  final IconData icon;
+  final String image;
   final String title;
   final String description;
 
   OnboardingPage({
-    required this.icon,
+    required this.image,
     required this.title,
     required this.description,
   });

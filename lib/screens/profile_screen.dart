@@ -6,6 +6,7 @@ import '../../utils/themes/text_styles.dart';
 import '../../utils/helpers/rank_helper.dart';
 import '../../utils/constants/rank_constants.dart';
 import '../../utils/routes.dart';
+import '../../services/firestore_service.dart';
 import '../../components/badges/rank_badge.dart';
 import '../../components/avatars/custom_avatar.dart';
 import 'edit_profile_screen.dart';
@@ -23,7 +24,10 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(
+          'PROFILE',
+          style: AppTextStyles.appBarTitle,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -125,8 +129,8 @@ class ProfileScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _buildStatItem(
-                            icon: Icons.stars,
-                            label: 'Points',
+                            icon: Icons.sports_soccer,
+                            label: 'Diskis',
                             value: userProfile.points.toString(),
                           ),
                           const SizedBox(width: 32),
@@ -141,7 +145,7 @@ class ProfileScreen extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       // Rank progress
-                      if (rank != UserRank.legend) ...[
+                      if (rank != UserRank.goat) ...[
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -153,7 +157,7 @@ class ProfileScreen extends StatelessWidget {
                                   style: AppTextStyles.bodySmall,
                                 ),
                                 Text(
-                                  '$pointsToNext pts',
+                                  '$pointsToNext Diskis',
                                   style: AppTextStyles.bodySmall.copyWith(
                                     color: AppColors.accentBlue,
                                   ),
@@ -209,7 +213,7 @@ class ProfileScreen extends StatelessWidget {
                 // Menu items
                 _buildMenuItem(
                   icon: Icons.feedback,
-                  title: 'Feature Request & Feedback',
+                  title: 'Feedback',
                   onTap: () {
                     AppRoutes.navigateTo(
                       context,
@@ -242,29 +246,128 @@ class ProfileScreen extends StatelessWidget {
                   title: 'Invite a Friend',
                   onTap: () {
                     Share.share(
-                      'Check out DiskiChat! The ultimate app for soccer fans. Download it now: https://diskichat.app',
-                      subject: 'Join me on DiskiChat!',
+                      'Check out Diskichat! The ultimate app for soccer fans. Download it now: https://diskichat.app',
+                      subject: 'Join me on Diskichat!',
                     );
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                
+                const SizedBox(height: 24),
+                
+                // Subscription Section
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.cardSurface,
+                        AppColors.cardSurface.withOpacity(0.8),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.white.withOpacity(0.1)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Subscription', style: AppTextStyles.h3),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: userProfile.subscriptionType == 'premium' 
+                                  ? AppColors.liveGreen.withOpacity(0.2)
+                                  : AppColors.textGray.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: userProfile.subscriptionType == 'premium'
+                                    ? AppColors.liveGreen
+                                    : AppColors.textGray,
+                              ),
+                            ),
+                            child: Text(
+                              userProfile.subscriptionType == 'premium' ? 'PREMIUM' : 'FREE',
+                              style: AppTextStyles.caption.copyWith(
+                                color: userProfile.subscriptionType == 'premium'
+                                    ? AppColors.liveGreen
+                                    : AppColors.textGray,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      if (userProfile.subscriptionType != 'premium') ...[
+                        Text(
+                          'Unlock full access to matches and features.',
+                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textGray),
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(child: _buildPlanOption(context, 'Weekly', 'R19', () => _showSubscriptionModal(context, 'Weekly', user.uid))),
+                            const SizedBox(width: 12),
+                            Expanded(child: _buildPlanOption(context, 'Monthly', 'R49', () => _showSubscriptionModal(context, 'Monthly', user.uid), isPopular: true)),
+                            const SizedBox(width: 12),
+                            Expanded(child: _buildPlanOption(context, 'Annual', 'R499', () => _showSubscriptionModal(context, 'Annual', user.uid))),
+                          ],
+                        ),
+                      ] else ...[
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: AppColors.liveGreen),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'You have full access to all matches and premium features.',
+                                style: AppTextStyles.bodyMedium,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => authProvider.updateProfile(subscriptionType: 'basic'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.textGray,
+                              side: const BorderSide(color: AppColors.textGray),
+                            ),
+                            child: const Text('Cancel Subscription'),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 24),
 
                 // Sign out button
-                _buildMenuItem(
-                  icon: Icons.logout,
-                  title: 'Sign Out',
-                  textColor: AppColors.errorRed,
-                  onTap: () async {
-                    await authProvider.signOut();
-                    if (context.mounted) {
-                      AppRoutes.navigateAndRemoveUntil(
-                        context,
-                        const WelcomeAuthScreen(),
-                      );
-                    }
-                  },
-                ),
+                // Sign out removed as requested
+                // _buildMenuItem(
+                //   icon: Icons.logout,
+                //   title: 'Sign Out',
+                //   textColor: AppColors.errorRed,
+                //   onTap: () async {
+                //     await authProvider.signOut();
+                //     if (context.mounted) {
+                //       AppRoutes.navigateAndRemoveUntil(
+                //         context,
+                //         const WelcomeAuthScreen(),
+                //       );
+                //     }
+                //   },
+                // ),
               ],
             ),
           );
@@ -326,6 +429,82 @@ class ProfileScreen extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPlanOption(BuildContext context, String title, String price, VoidCallback onTap, {bool isPopular = false}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isPopular ? AppColors.primaryBlue : Colors.transparent,
+          border: Border.all(
+            color: isPopular ? AppColors.primaryBlue : AppColors.textGray.withOpacity(0.5),
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            if (isPopular) ...[
+              Text(
+                'BEST VALUE',
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 8,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+            ],
+            Text(
+              title,
+              style: AppTextStyles.bodySmall.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isPopular ? Colors.white : AppColors.textWhite,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              price,
+              style: AppTextStyles.bodyLarge.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isPopular ? Colors.white : AppColors.accentBlue,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSubscriptionModal(BuildContext context, String plan, String userId) {
+    // Log the attempt
+    // We create a temporary instance or use a provider if service was provided, 
+    // but creating instance is fine for this lightweight logger.
+    // Ideally use dependency injection or Provider.
+    final firestoreService = FirestoreService(); // Assuming import is available
+    firestoreService.logSubscriptionAttempt(userId, plan);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.cardSurface,
+        title: const Text(
+          'Coming Soon!',
+          style: TextStyle(color: AppColors.textWhite),
+        ),
+        content: const Text(
+          'Premium subscriptions are not yet active. Please enjoy the FULL version of Diskichat for FREE for now!',
+          style: TextStyle(color: AppColors.textGray),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Awesome!', style: TextStyle(color: AppColors.accentBlue)),
+          ),
+        ],
       ),
     );
   }

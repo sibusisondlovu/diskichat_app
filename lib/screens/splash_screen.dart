@@ -16,12 +16,27 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
     debugPrint('DEBUG: SplashScreen initState');
+    
+    // Rotation Animation
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+
     _navigateToNext();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   Future<void> _navigateToNext() async {
@@ -63,43 +78,15 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primaryDark,
+      backgroundColor: Colors.white, // White background as requested
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.accentBlue,
-                    AppColors.accentBlue.withOpacity(0.6),
-                  ],
-                ),
-              ),
-              child: Image.asset('lib/assets/images/diskichat_icon.png'
-              ),
-            ),
-            const SizedBox(height: 24),
-            const Text(
-              'Diskichat',
-              style: AppTextStyles.h1,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Making Beautiful Game More Social',
-              style: AppTextStyles.tagline,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 40),
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.accentBlue),
-            ),
-          ],
+        child: RotationTransition(
+          turns: _controller,
+          child: Image.asset(
+            'lib/assets/images/diskichat_icon.png',
+            width: 150, // Bigger logo
+            height: 150,
+          ),
         ),
       ),
     );

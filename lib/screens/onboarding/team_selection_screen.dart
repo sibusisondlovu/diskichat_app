@@ -5,6 +5,7 @@ import '../../services/follow_service.dart';
 import '../../services/subscription_service.dart';
 import '../../utils/themes/app_colors.dart';
 import '../../components/common/loading_indicator.dart';
+import '../../components/avatars/custom_avatar.dart';
 
 class TeamSelectionScreen extends StatefulWidget {
   final String userId;
@@ -162,12 +163,10 @@ class _TeamSelectionScreenState extends State<TeamSelectionScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             if (team.logo != null && team.logo!.isNotEmpty)
-                              Image.network(
-                                team.logo!,
-                                width: 50,
-                                height: 50,
-                                fit: BoxFit.contain,
-                                errorBuilder: (_, __, ___) => const Icon(Icons.shield, size: 40, color: Colors.grey),
+                              CustomAvatar(
+                                imageUrl: team.logo!,
+                                size: 50,
+                                placeholder: '?',
                               )
                             else
                               const Icon(Icons.shield, size: 50, color: Colors.grey),

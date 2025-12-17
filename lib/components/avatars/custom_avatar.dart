@@ -17,22 +17,37 @@ class CustomAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: imageUrl!,
-        imageBuilder: (context, imageProvider) => Container(
+      if (imageUrl!.startsWith('http')) {
+        return CachedNetworkImage(
+          imageUrl: imageUrl!,
+          imageBuilder: (context, imageProvider) => Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          placeholder: (context, url) => _buildPlaceholder(),
+          errorWidget: (context, url, error) => _buildPlaceholder(),
+        );
+      } else {
+        // Local Asset
+        return Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             image: DecorationImage(
-              image: imageProvider,
+              image: AssetImage(imageUrl!),
               fit: BoxFit.cover,
             ),
           ),
-        ),
-        placeholder: (context, url) => _buildPlaceholder(),
-        errorWidget: (context, url, error) => _buildPlaceholder(),
-      );
+        );
+      }
     }
 
     return _buildPlaceholder();
