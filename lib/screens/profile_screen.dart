@@ -7,6 +7,7 @@ import '../../utils/helpers/rank_helper.dart';
 import '../../utils/constants/rank_constants.dart';
 import '../../utils/routes.dart';
 import '../../services/firestore_service.dart';
+import '../../services/analytics_service.dart';
 import '../../components/badges/rank_badge.dart';
 import '../../components/avatars/custom_avatar.dart';
 import 'edit_profile_screen.dart';
@@ -480,6 +481,9 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showSubscriptionModal(BuildContext context, String plan, String userId) {
+    // Analytics
+    AnalyticsService().logUpgradeClick(fromScreen: 'profile_screen');
+
     // Log the attempt
     // We create a temporary instance or use a provider if service was provided, 
     // but creating instance is fine for this lightweight logger.

@@ -4,6 +4,7 @@ import '../utils/themes/text_styles.dart';
 import '../utils/routes.dart';
 import '../components/buttons/gradient_button.dart';
 import '../services/storage_service.dart';
+import '../services/analytics_service.dart';
 import 'auth/welcome_auth_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -200,6 +201,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _goToAuth() async {
+    // Analytics
+    await AnalyticsService().logSignUp();
+
     // Mark onboarding as done
     await StorageService().setOnboardingDone(true);
     if (!mounted) return;

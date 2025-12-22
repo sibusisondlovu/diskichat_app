@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/match_provider.dart';
@@ -15,13 +16,30 @@ class MatchesScreen extends StatefulWidget {
 }
 
 class _MatchesScreenState extends State<MatchesScreen> {
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
     // Load matches when screen opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<MatchProvider>(context, listen: false).loadMatches();
+      // Start auto-refresh timer
+      _startAutoRefresh();
     });
+  }
+
+  void _startAutoRefresh() {
+    _timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+      debugPrint('MatchesScreen: Auto-refreshing matches...');
+      Provider.of<MatchProvider>(context, listen: false).loadMatches();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   @override

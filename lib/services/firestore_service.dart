@@ -132,14 +132,15 @@ class FirestoreService {
     });
   }
 
-  // Vote on message
+  // Vote on message (Deprecated - Keeping for backward compatibility if needed, but reactions are preferred)
   Future<void> voteMessage({
     required String matchId,
     required String messageId,
     required String userId,
     required String voteType, // 'up' or 'down'
   }) async {
-    final voteRef = _firestore
+    // ... existing implementation ...
+     final voteRef = _firestore
         .collection('matches')
         .doc(matchId)
         .collection('messages')
@@ -172,6 +173,39 @@ class FirestoreService {
     }
   }
 
+  // Toggle Reaction
+  Future<void> toggleReaction({
+    required String matchId,
+    required String messageId,
+    required String userId,
+    required String emoji,
+  }) async {
+    final messageRef = _firestore
+        .collection('matches')
+        .doc(matchId)
+        .collection('messages')
+        .doc(messageId);
+
+    // Run transaction to ensure atomic update of the map
+    await _firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(messageRef);
+      if (!snapshot.exists) return;
+
+      final data = snapshot.data() as Map<String, dynamic>;
+      final reactions = Map<String, String>.from(data['reactions'] ?? {});
+
+      if (reactions[userId] == emoji) {
+        // Remove if same emoji
+        reactions.remove(userId);
+      } else {
+        // Update/Add if different or new
+        reactions[userId] = emoji;
+      }
+
+      transaction.update(messageRef, {'reactions': reactions});
+    });
+  }
+
   Future<void> _updateVoteCount(String matchId, String messageId, int change) async {
     await _firestore
         .collection('matches')
@@ -185,6 +219,7 @@ class FirestoreService {
 
   // Get user's vote on a message
   Future<String?> getUserVote(String matchId, String messageId, String userId) async {
+     // ... existing implementation ...
     final voteDoc = await _firestore
         .collection('matches')
         .doc(matchId)

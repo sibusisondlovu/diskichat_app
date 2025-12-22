@@ -11,10 +11,10 @@ class MessageModel {
   final DateTime createdAt;
 
   // User info (denormalized for display)
-  final String? username;
-  final String? displayName;
-  final String? avatarUrl;
-  final String? userRank;
+  final String? imageUrl;
+  final String? videoUrl;
+  final String? thumbnailUrl;
+  final Map<String, String> reactions; // UserId -> Emoji
 
   MessageModel({
     required this.id,
@@ -29,6 +29,10 @@ class MessageModel {
     this.displayName,
     this.avatarUrl,
     this.userRank,
+    this.imageUrl,
+    this.videoUrl,
+    this.thumbnailUrl,
+    this.reactions = const {},
   });
 
   // From Firestore
@@ -46,6 +50,10 @@ class MessageModel {
       displayName: map['displayName'],
       avatarUrl: map['avatarUrl'],
       userRank: map['userRank'],
+      imageUrl: map['imageUrl'],
+      videoUrl: map['videoUrl'],
+      thumbnailUrl: map['thumbnailUrl'],
+      reactions: Map<String, String>.from(map['reactions'] ?? {}),
     );
   }
 
@@ -64,6 +72,10 @@ class MessageModel {
       'displayName': displayName,
       'avatarUrl': avatarUrl,
       'userRank': userRank,
+      'imageUrl': imageUrl,
+      'videoUrl': videoUrl,
+      'thumbnailUrl': thumbnailUrl,
+      'reactions': reactions,
     };
   }
 
@@ -81,6 +93,10 @@ class MessageModel {
     String? displayName,
     String? avatarUrl,
     String? userRank,
+    String? imageUrl,
+    String? videoUrl,
+    String? thumbnailUrl,
+    Map<String, String>? reactions,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -95,6 +111,10 @@ class MessageModel {
       displayName: displayName ?? this.displayName,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       userRank: userRank ?? this.userRank,
+      imageUrl: imageUrl ?? this.imageUrl,
+      videoUrl: videoUrl ?? this.videoUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      reactions: reactions ?? this.reactions,
     );
   }
 
@@ -104,4 +124,7 @@ class MessageModel {
   bool get isGoal => messageType == 'goal';
   bool get isCard => messageType == 'card';
   bool get isSystem => messageType == 'system';
+  bool get hasMedia => imageUrl != null || videoUrl != null;
+  bool get isImage => imageUrl != null;
+  bool get isVideo => videoUrl != null;
 }

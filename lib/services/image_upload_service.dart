@@ -7,14 +7,14 @@ class ImageUploadService {
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final Uuid _uuid = const Uuid();
 
-  Future<String> uploadImage(File file) async {
+  Future<String> uploadImage(File file, {String folder = 'posts'}) async {
     try {
       // 1. Compress Image
       final compressedFile = await _compressImage(file);
       final File uploadFile = compressedFile ?? file; // Fallback to original
 
       final String fileName = '${_uuid.v4()}.jpg';
-      final Reference ref = _storage.ref().child('posts').child(fileName);
+      final Reference ref = _storage.ref().child(folder).child(fileName);
 
       final UploadTask uploadTask = ref.putFile(
         uploadFile,
@@ -30,10 +30,10 @@ class ImageUploadService {
     }
   }
 
-  Future<String> uploadVideo(File file) async {
+  Future<String> uploadVideo(File file, {String folder = 'posts/videos'}) async {
     try {
       final String fileName = '${_uuid.v4()}.mp4';
-      final Reference ref = _storage.ref().child('posts').child('videos').child(fileName);
+      final Reference ref = _storage.ref().child(folder).child(fileName);
 
       final UploadTask uploadTask = ref.putFile(
         file,

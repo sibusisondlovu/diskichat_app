@@ -3,6 +3,8 @@ import '../services/firestore_service.dart';
 import '../services/auth_service.dart';
 import '../data/models/message_model.dart';
 import '../utils/constants/app_constants.dart';
+import 'dart:io';
+import '../services/image_upload_service.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatProvider extends ChangeNotifier {
@@ -50,11 +52,16 @@ class ChatProvider extends ChangeNotifier {
     );
   }
 
+  final ImageUploadService _imageUploadService = ImageUploadService();
+
   // Send message
   Future<bool> sendMessage({
     required String matchId,
     required String message,
     String messageType = 'comment',
+    String? imageUrl,
+    String? videoUrl,
+    String? thumbnailUrl,
   }) async {
     final user = _authService.currentUser;
     if (user == null) return false;
@@ -68,6 +75,9 @@ class ChatProvider extends ChangeNotifier {
         messageType: messageType,
         votes: 0,
         createdAt: DateTime.now(),
+        imageUrl: imageUrl,
+        videoUrl: videoUrl,
+        thumbnailUrl: thumbnailUrl,
       );
 
       await _firestoreService.sendMessage(matchId, messageModel);
@@ -86,7 +96,72 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  // Vote on message
+  // Send Media Message
+  Future<bool> sendMediaMessage({
+    required String matchId,
+    required File file,
+    required bool isVideo,
+    String? message,
+  }) async {
+      _isLoading = true;
+      notifyListeners();
+      
+      try {
+        String? imageUrl;
+        String? videoUrl;
+        String? thumbnailUrl;
+
+        if (isVideo) {
+             videoUrl = await _imageUploadService.uploadVideo(file, folder: 'chat_media/$matchId');
+             // TODO: Generate thumbnail or use a placeholder
+             // thumbnailUrl = await _generateThumbnail(file); 
+        } else {
+             imageUrl = await _imageUploadService.uploadImage(file, folder: 'chat_media/$matchId');
+        }
+
+        final success = await sendMessage(
+            matchId: matchId, 
+            message: message ?? (isVideo ? 'Sent a video' : 'Sent a photo'),
+            messageType: 'comment', // Or specific type
+            imageUrl: imageUrl,
+            videoUrl: videoUrl,
+            thumbnailUrl: thumbnailUrl,
+        );
+        
+        _isLoading = false;
+        notifyListeners();
+        return success;
+      } catch (e) {
+          _errorMessage = e.toString();
+          _isLoading = false;
+          notifyListeners();
+          return false;
+      }
+  }
+
+  // Toggle Reaction
+  Future<void> toggleReaction({
+    required String matchId,
+    required String messageId,
+    required String emoji,
+  }) async {
+    final user = _authService.currentUser;
+    if (user == null) return;
+
+    try {
+      await _firestoreService.toggleReaction(
+        matchId: matchId,
+        messageId: messageId,
+        userId: user.uid,
+        emoji: emoji,
+      );
+      // No need to notifyListeners() immediately as we listen to the stream
+    } catch (e) {
+      debugPrint("Error toggling reaction: $e");
+    }
+  }
+
+  // Vote on message (Legacy)
   Future<void> voteMessage({
     required String matchId,
     required String messageId,
