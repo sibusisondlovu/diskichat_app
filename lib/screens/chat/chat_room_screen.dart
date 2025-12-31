@@ -16,6 +16,12 @@ import '../../components/common/loading_indicator.dart';
 import '../../components/common/empty_state.dart';
 import 'tabs/lineup_view.dart'; // Import
 import 'tabs/events_view.dart'; // Import
+import 'package:image_picker/image_picker.dart';
+import 'video_player_screen.dart'; // Import
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
+import '../../utils/constants/app_constants.dart';
 
 class ChatRoomScreen extends StatefulWidget {
   final MatchModel match;
@@ -363,64 +369,186 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   Widget _buildMessageItem(MessageModel msg, bool isMe) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!isMe) ...[
-             CircleAvatar(
-              backgroundColor: AppColors.textGray,
-              radius: 16,
-              backgroundImage: msg.avatarUrl != null ? NetworkImage(msg.avatarUrl!) : null,
-              child: msg.avatarUrl == null 
-                  ? const Icon(Icons.person, size: 20, color: AppColors.primaryDark) 
-                  : null,
-            ),
-            const SizedBox(width: 8),
-          ],
-          
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isMe ? AppColors.accentBlue : AppColors.cardSurface,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(16),
-                  topRight: const Radius.circular(16),
-                  bottomLeft: Radius.circular(isMe ? 16 : 0),
-                  bottomRight: Radius.circular(isMe ? 0 : 16),
-                ),
+    return GestureDetector(
+      onLongPress: () => _showReactionPicker(msg),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Row(
+          mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end, // Align to bottom for better bubble look
+          children: [
+            if (!isMe) ...[
+               CircleAvatar(
+                backgroundColor: AppColors.textGray,
+                radius: 16,
+                backgroundImage: msg.avatarUrl != null ? NetworkImage(msg.avatarUrl!) : null,
+                child: msg.avatarUrl == null 
+                    ? const Icon(Icons.person, size: 20, color: AppColors.primaryDark) 
+                    : null,
               ),
+              const SizedBox(width: 8),
+            ],
+            
+            Flexible(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
-                  if (!isMe && msg.username != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        msg.username!,
-                        style: AppTextStyles.caption.copyWith(
-                          color: AppColors.textWhite,
-                          fontWeight: FontWeight.bold,
-                        ),
+                   Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isMe ? AppColors.accentBlue : AppColors.cardSurface,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(16),
+                        topRight: const Radius.circular(16),
+                        bottomLeft: Radius.circular(isMe ? 16 : 0),
+                        bottomRight: Radius.circular(isMe ? 0 : 16),
                       ),
                     ),
-                  Text(
-                    msg.message,
-                    style: AppTextStyles.bodyMedium,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (!isMe && msg.username != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 4),
+                            child: Text(
+                              msg.username!,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.textWhite,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        
+                        // Media Rendering
+                        if (msg.imageUrl != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: CachedNetworkImage(
+                                imageUrl: msg.imageUrl!,
+                                placeholder: (context, url) => const SizedBox(
+                                  height: 150, 
+                                  width: 200, 
+                                  child: Center(child: CircularProgressIndicator())
+                                ),
+                                errorWidget: (context, url, error) => const Icon(Icons.error),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+
+                        if (msg.videoUrl != null)
+                           GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VideoPlayerScreen(videoUrl: msg.videoUrl!),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Container(
+                                height: 150,
+                                width: 200,
+                                decoration: BoxDecoration(
+                                  color: Colors.black,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Center(
+                                  child: Icon(Icons.play_circle_fill, size: 48, color: Colors.white.withOpacity(0.8)),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                        if (msg.message.isNotEmpty)
+                          Text(
+                            msg.message,
+                            style: AppTextStyles.bodyMedium,
+                          ),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('HH:mm').format(msg.createdAt),
+                          style: AppTextStyles.caption.copyWith(fontSize: 10),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('HH:mm').format(msg.createdAt),
-                    style: AppTextStyles.caption.copyWith(fontSize: 10),
-                  ),
+                  
+                  // Reactions Display
+                  if (msg.reactions.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Wrap(
+                        spacing: 4,
+                        children: _buildReactionChips(msg),
+                      ),
+                    ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildReactionChips(MessageModel msg) {
+    // Group reactions by emoji
+    final Map<String, int> counts = {};
+    for (var emoji in msg.reactions.values) {
+      counts[emoji] = (counts[emoji] ?? 0) + 1;
+    }
+
+    return counts.entries.map((entry) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: AppColors.cardSurface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppColors.textGray.withOpacity(0.3)),
+        ),
+        child: Text(
+          '${entry.key} ${entry.value}',
+          style: const TextStyle(fontSize: 10, color: AppColors.textWhite),
+        ),
+      );
+    }).toList();
+  }
+
+  void _showReactionPicker(MessageModel msg) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.cardSurface,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: ['👍', '❤️', '😂', '😮', '😢', '😡'].map((emoji) {
+            return GestureDetector(
+              onTap: () {
+                context.read<ChatProvider>().toggleReaction(
+                  matchId: widget.match.id,
+                  messageId: msg.id,
+                  emoji: emoji,
+                );
+                Navigator.pop(context);
+              },
+              child: Text(
+                emoji,
+                style: const TextStyle(fontSize: 28),
+              ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -431,6 +559,11 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       color: AppColors.cardSurface,
       child: Row(
         children: [
+          IconButton(
+            icon: const Icon(Icons.add_circle, color: AppColors.accentBlue),
+            onPressed: _showAttachmentOptions,
+          ),
+          const SizedBox(width: 8),
           Expanded(
             child: CustomTextField(
               controller: _messageController,
@@ -451,5 +584,81 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         ],
       ),
     );
+  }
+
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardSurface,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo, color: AppColors.accentBlue),
+              title: const Text('Photo', style: TextStyle(color: AppColors.textWhite)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMedia(ImageSource.gallery, false);
+              },
+            ),
+             ListTile(
+              leading: const Icon(Icons.videocam, color: AppColors.accentBlue),
+              title: const Text('Video', style: TextStyle(color: AppColors.textWhite)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMedia(ImageSource.gallery, true);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt, color: AppColors.accentBlue),
+              title: const Text('Camera', style: TextStyle(color: AppColors.textWhite)),
+              onTap: () {
+                Navigator.pop(context);
+                _pickMedia(ImageSource.camera, false);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickMedia(ImageSource source, bool isVideo) async {
+    final picker = ImagePicker();
+    final XFile? file;
+    
+    try {
+      if (isVideo) {
+        file = await picker.pickVideo(source: source);
+      } else {
+        file = await picker.pickImage(source: source, imageQuality: 70);
+      }
+
+      if (file != null && mounted) {
+        final success = await context.read<ChatProvider>().sendMediaMessage(
+          matchId: widget.match.id, 
+          file: File(file.path), 
+          isVideo: isVideo
+        );
+        
+        if (success && mounted) {
+           if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error picking media: $e');
+      if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text('Error picking media: $e')),
+           );
+      }
+    }
   }
 }

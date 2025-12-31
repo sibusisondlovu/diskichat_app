@@ -126,31 +126,35 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
   }
 
   Widget _buildNicknameStep() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.person_outline, size: 80, color: AppColors.accentBlue),
-          const SizedBox(height: 24),
-          const Text(
-            'What should we call you?',
-            style: AppTextStyles.h2,
-            textAlign: TextAlign.center,
+    return Center(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.person_outline, size: 80, color: AppColors.accentBlue),
+              const SizedBox(height: 24),
+              const Text(
+                'What should we call you?',
+                style: AppTextStyles.h2,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Choose a unique nickname for the community.',
+                style: AppTextStyles.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              CustomTextField(
+                controller: _nicknameController,
+                hintText: 'Nickname',
+                prefixIcon: Icons.badge,
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Choose a unique nickname for the community.',
-            style: AppTextStyles.body,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 48),
-          CustomTextField(
-            controller: _nicknameController,
-            hintText: 'Nickname',
-            prefixIcon: Icons.badge,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -158,77 +162,81 @@ class _ProfileWizardScreenState extends State<ProfileWizardScreen> {
   Widget _buildTeamSelectionStep() {
     final user = Provider.of<AuthProvider>(context, listen: false).user;
     
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            _isTeamSelected ? Icons.check_circle : Icons.shield,
-            size: 80, 
-            color: _isTeamSelected ? AppColors.successGreen : AppColors.accentBlue
-          ),
-          const SizedBox(height: 24),
-          const Text(
-            'Pick your Team',
-            style: AppTextStyles.h2,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Follow your favorite team to get news and match updates.',
-            style: AppTextStyles.body,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 48),
-          
-          OutlinedButton.icon(
-            onPressed: () async {
-              if (user == null) return;
-              final result = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TeamSelectionScreen(
-                    userId: user.uid,
-                    subscriptionType: 'FREE', // Default new user
-                    currentFollowCount: 0,
-                    // No country filter
+    return Center(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _isTeamSelected ? Icons.check_circle : Icons.shield,
+                size: 80, 
+                color: _isTeamSelected ? AppColors.successGreen : AppColors.accentBlue
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Pick your Team',
+                style: AppTextStyles.h2,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Follow your favorite team to get news and match updates.',
+                style: AppTextStyles.body,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              
+              OutlinedButton.icon(
+                onPressed: () async {
+                  if (user == null) return;
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TeamSelectionScreen(
+                        userId: user.uid,
+                        subscriptionType: 'FREE', // Default new user
+                        currentFollowCount: 0,
+                        // No country filter
+                      ),
+                    ),
+                  );
+                  
+                  if (result != null) { 
+                     final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                     
+                     final teamName = (result as dynamic).name;
+                     final teamLogo = (result as dynamic).logo;
+                     
+                     await authProvider.updateProfile(
+                        favoriteTeam: teamName,
+                        favoriteTeamLogo: teamLogo,
+                     );
+                     
+                    setState(() => _isTeamSelected = true);
+                  }
+                },
+                icon: const Icon(Icons.search),
+                label: Text(_isTeamSelected ? 'Change Team' : 'Select Team'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.accentBlue,
+                  side: const BorderSide(color: AppColors.accentBlue),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                ),
+              ),
+              
+              if (_isTeamSelected)
+                const Padding(
+                  padding: EdgeInsets.only(top: 16.0),
+                  child: Text(
+                    'Team Selected!',
+                    style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
                   ),
                 ),
-              );
-              
-              if (result != null) { 
-                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                 
-                 final teamName = (result as dynamic).name;
-                 final teamLogo = (result as dynamic).logo;
-                 
-                 await authProvider.updateProfile(
-                    favoriteTeam: teamName,
-                    favoriteTeamLogo: teamLogo,
-                 );
-                 
-                setState(() => _isTeamSelected = true);
-              }
-            },
-            icon: const Icon(Icons.search),
-            label: Text(_isTeamSelected ? 'Change Team' : 'Select Team'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.accentBlue,
-              side: const BorderSide(color: AppColors.accentBlue),
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-            ),
+            ],
           ),
-          
-          if (_isTeamSelected)
-            const Padding(
-              padding: EdgeInsets.only(top: 16.0),
-              child: Text(
-                'Team Selected!',
-                style: TextStyle(color: AppColors.successGreen, fontWeight: FontWeight.bold),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

@@ -11,6 +11,11 @@ class MessageModel {
   final DateTime createdAt;
 
   // User info (denormalized for display)
+  final String? username;
+  final String? displayName;
+  final String? avatarUrl;
+  final String? userRank;
+
   final String? imageUrl;
   final String? videoUrl;
   final String? thumbnailUrl;
