@@ -84,4 +84,26 @@ class PostModel {
       createdAt: DateTime.tryParse(json['created_at'] ?? '') ?? DateTime.now(),
     );
   }
+  // copyWith for editing
+  PostModel copyWith({
+    String? content,
+    String? imageUrl,
+    String? videoUrl,
+  }) {
+    return PostModel(
+      id: id,
+      userId: userId,
+      username: username,
+      userTeam: userTeam,
+      userTeamLogo: userTeamLogo,
+      userAvatar: userAvatar,
+      content: content ?? this.content,
+      imageUrl: imageUrl ?? this.imageUrl,
+      videoUrl: videoUrl ?? this.videoUrl,
+      likesCount: likesCount,
+      commentsCount: commentsCount,
+      createdAt: createdAt,
+      isLiked: isLiked,
+    );
+  }
 }

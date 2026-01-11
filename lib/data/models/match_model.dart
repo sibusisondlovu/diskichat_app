@@ -23,6 +23,7 @@ class MatchModel {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final List<EventModel> events;
+  final bool isMatchOfTheDay;
 
   MatchModel({
     required this.id,
@@ -46,6 +47,7 @@ class MatchModel {
     required this.createdAt,
     this.updatedAt,
     this.events = const [],
+    this.isMatchOfTheDay = false,
   });
 
   factory MatchModel.fromMap(Map<String, dynamic> map) {
@@ -70,6 +72,7 @@ class MatchModel {
       elapsedTime: map['elapsedTime'],
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
+      isMatchOfTheDay: map['isMatchOfTheDay'] ?? false,
     );
   }
 
@@ -97,6 +100,7 @@ class MatchModel {
       events: (json['events'] as List<dynamic>?)
           ?.map((e) => EventModel.fromJson(e))
           .toList() ?? [],
+      isMatchOfTheDay: false,
     );
   }
 
@@ -139,6 +143,7 @@ class MatchModel {
       'elapsedTime': elapsedTime,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
+      'isMatchOfTheDay': isMatchOfTheDay,
     };
   }
 
@@ -164,6 +169,7 @@ class MatchModel {
     String? elapsedTime,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isMatchOfTheDay,
   }) {
     return MatchModel(
       id: id ?? this.id,
@@ -186,6 +192,7 @@ class MatchModel {
       elapsedTime: elapsedTime ?? this.elapsedTime,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isMatchOfTheDay: isMatchOfTheDay ?? this.isMatchOfTheDay,
     );
   }
 

@@ -21,6 +21,7 @@ class _CommentsSheetState extends State<CommentsSheet> {
   final TextEditingController _commentController = TextEditingController();
   final FirestoreService _firestoreService = FirestoreService();
   bool _isSending = false;
+  String? _editingCommentId; // Track which comment is being edited
 
   void _submitComment() async {
     final text = _commentController.text.trim();
@@ -34,17 +35,27 @@ class _CommentsSheetState extends State<CommentsSheet> {
     setState(() => _isSending = true);
 
     try {
-      final comment = CommentModel(
-        id: '',
-        postId: widget.postId,
-        userId: user.uid,
-        username: profile?.username ?? user.displayName ?? 'Anonymous',
-        userAvatar: profile?.avatarUrl ?? user.photoURL,
-        content: text,
-        createdAt: DateTime.now(),
-      );
+      if (_editingCommentId != null) {
+        // Update existing comment
+        await _firestoreService.updateComment(widget.postId, _editingCommentId!, text);
+        setState(() {
+          _editingCommentId = null;
+        });
+      } else {
+        // Create new comment
+          final comment = CommentModel(
+          id: '',
+          postId: widget.postId,
+          userId: user.uid,
+          username: profile?.username ?? user.displayName ?? 'Anonymous',
+          userAvatar: profile?.avatarUrl ?? user.photoURL,
+          content: text,
+          createdAt: DateTime.now(),
+        );
 
-      await _firestoreService.addComment(comment);
+        await _firestoreService.addComment(comment);
+      }
+      
       _commentController.clear();
       FocusManager.instance.primaryFocus?.unfocus(); // Dismiss keyboard
     } catch (e) {
@@ -123,7 +134,48 @@ class _CommentsSheetState extends State<CommentsSheet> {
                                Text(comment.content, style: AppTextStyles.bodySmall),
                              ],
                            ),
-                         ),
+                          ),
+                          
+                          // Options for owner
+                          if (context.read<AuthProvider>().user?.uid == comment.userId)
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, size: 16, color: Colors.grey),
+                              onSelected: (value) async {
+                                if (value == 'edit') {
+                                  setState(() {
+                                    _editingCommentId = comment.id;
+                                    _commentController.text = comment.content;
+                                  });
+                                } else if (value == 'delete') {
+                                   final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      backgroundColor: AppColors.cardSurface,
+                                      title: const Text("Delete Comment?", style: TextStyle(color: Colors.white)),
+                                      content: const Text("Are you sure?", style: TextStyle(color: Colors.white70)),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text("Cancel")),
+                                        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text("Delete", style: TextStyle(color: Colors.red))),
+                                      ],
+                                    ),
+                                  );
+                                  
+                                  if (confirm == true) {
+                                    await _firestoreService.deleteComment(widget.postId, comment.id);
+                                  }
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Text('Edit'),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Text('Delete', style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
                        ],
                      );
                    },
@@ -139,8 +191,34 @@ class _CommentsSheetState extends State<CommentsSheet> {
               color: AppColors.primaryDark,
               border: Border(top: BorderSide(color: Colors.white10)),
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                if (_editingCommentId != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    color: Colors.white10,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Editing comment...", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _editingCommentId = null;
+                              _commentController.clear();
+                              FocusManager.instance.primaryFocus?.unfocus();
+                            });
+                          },
+                          child: const Icon(Icons.close, size: 16, color: Colors.white70),
+                        ),
+                      ],
+                    ),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
                 Expanded(
                   child: TextField(
                     controller: _commentController,
@@ -159,13 +237,16 @@ class _CommentsSheetState extends State<CommentsSheet> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _isSending ? null : _submitComment,
-                  icon: _isSending 
-                    ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.send, color: AppColors.accentBlue),
-                ),
-              ],
+                  IconButton(
+                    onPressed: _isSending ? null : _submitComment,
+                    icon: _isSending 
+                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(_editingCommentId != null ? Icons.check : Icons.send, color: AppColors.accentBlue),
+                  ),
+                ],
+              ),
+             ),
+             ],
             ),
           ),
         ],

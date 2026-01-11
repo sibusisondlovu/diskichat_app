@@ -108,7 +108,7 @@ class _LiveMatchesScreenState extends State<LiveMatchesScreen> {
             );
           }
 
-          final liveMatches = matchProvider.liveMatches;
+          final liveMatches = matchProvider.matches;
 
           if (liveMatches.isEmpty) {
             return EmptyState(

@@ -7,6 +7,7 @@ import '../data/models/feedback_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get firestore => _firestore;
 
   // ========== MATCHES ==========
 
@@ -328,9 +329,24 @@ class FirestoreService {
         .toList());
   }
 
-  // Create Post
   Future<void> createPost(PostModel post) async {
     await _firestore.collection('posts').add(post.toMap());
+  }
+
+  // Update Post
+  Future<void> updatePost(PostModel post) async {
+    await _firestore.collection('posts').doc(post.id).update({
+      'content': post.content,
+      'imageUrl': post.imageUrl,
+      'videoUrl': post.videoUrl,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Delete Post
+  Future<void> deletePost(String postId) async {
+    await _firestore.collection('posts').doc(postId).delete();
+    // Ideally we should delete subcollections (comments, likes) via Cloud Functions
   }
 
   // Like Post (with Gamification)
@@ -414,6 +430,29 @@ class FirestoreService {
       // Award HUGE bonus for 100 comments
        await _awardPoints(ownerId, 500); // 500 Diski
     }
+  }
+
+  // Update Comment
+  Future<void> updateComment(String postId, String commentId, String content) async {
+    await _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .doc(commentId)
+        .update({
+      'content': content,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Delete Comment
+  Future<void> deleteComment(String postId, String commentId) async {
+    final postRef = _firestore.collection('posts').doc(postId);
+    
+    await postRef.collection('comments').doc(commentId).delete();
+    
+    // Decrement count
+    await postRef.update({'commentsCount': FieldValue.increment(-1)});
   }
 
   // ========== GAMIFICATION ==========

@@ -7,7 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import '../../utils/constants/teams_constants.dart';
 import 'comments_sheet.dart';
+import 'comments_sheet.dart';
 import 'video_post_player.dart';
+import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../services/firestore_service.dart';
+import '../../screens/social/create_post_screen.dart';
 
 class FeedPostCard extends StatelessWidget {
   final PostModel post;
@@ -25,6 +30,75 @@ class FeedPostCard extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CommentsSheet(postId: post.id),
+    );
+  }
+
+  void _showPostOptions(BuildContext context) {
+    final user = context.read<AuthProvider>().user;
+    if (user == null) return;
+    
+    final isOwner = user.uid == post.userId;
+    
+    if (!isOwner) return; // For now only owners can do actions (maybe report later)
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cardSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isOwner) ...[
+              ListTile(
+                leading: const Icon(Icons.edit, color: Colors.white),
+                title: const Text('Edit Post', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreatePostScreen(postToEdit: post),
+                    ),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text('Delete Post', style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  Navigator.pop(context); // Close sheet
+                  
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: AppColors.cardSurface,
+                      title: const Text("Delete Post?", style: TextStyle(color: Colors.white)),
+                      content: const Text("Are you sure you want to delete this post?", style: TextStyle(color: Colors.white70)),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text("Cancel"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text("Delete", style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                  
+                  if (confirm == true) {
+                    await FirestoreService().deletePost(post.id);
+                  }
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -68,7 +142,7 @@ class FeedPostCard extends StatelessWidget {
                 ),
                 IconButton(
                   icon: const Icon(Icons.more_horiz, color: AppColors.textGray),
-                  onPressed: () {},
+                  onPressed: () => _showPostOptions(context),
                 ),
               ],
             ),

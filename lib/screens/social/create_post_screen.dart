@@ -11,7 +11,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
 class CreatePostScreen extends StatefulWidget {
-  const CreatePostScreen({super.key});
+  final PostModel? postToEdit;
+  
+  const CreatePostScreen({super.key, this.postToEdit});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -25,7 +27,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   File? _selectedVideo;
   VideoPlayerController? _videoController;
 
+  String? _existingImageUrl;
+  String? _existingVideoUrl;
+
   bool _isPosting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.postToEdit != null) {
+      _contentController.text = widget.postToEdit!.content;
+      _existingImageUrl = widget.postToEdit!.imageUrl;
+      _existingVideoUrl = widget.postToEdit!.videoUrl;
+    }
+  }
 
   @override
   void dispose() {
@@ -40,6 +55,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _selectedImage = File(image.path);
         _selectedVideo = null;
+        _existingImageUrl = null; // Clear existing if new picked
+        _existingVideoUrl = null;
         _videoController?.dispose();
         _videoController = null;
       });
@@ -56,6 +73,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _selectedVideo = file;
         _selectedImage = null; // Only one media type
+        _existingImageUrl = null;
+        _existingVideoUrl = null;
         _videoController = controller;
       });
     }
@@ -63,7 +82,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   void _submitPost() async {
     final text = _contentController.text.trim();
-    if (text.isEmpty && _selectedImage == null && _selectedVideo == null) return; 
+    if (text.isEmpty && _selectedImage == null && _selectedVideo == null && _existingImageUrl == null && _existingVideoUrl == null) return; 
 
     final user = context.read<AuthProvider>().user;
     if (user == null) return;
@@ -71,8 +90,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     setState(() => _isPosting = true);
 
     try {
-      String? imageUrl;
-      String? videoUrl;
+      String? imageUrl = _existingImageUrl;
+      String? videoUrl = _existingVideoUrl;
       
       final ImageUploadService uploadService = ImageUploadService();
 
@@ -90,6 +109,18 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     final String? userTeamLogo = profile?.favoriteTeamLogo;
     final String? userAvatar = profile?.avatarUrl ?? user.photoURL;
 
+    final FirestoreService firestoreService = FirestoreService();
+
+    if (widget.postToEdit != null) {
+        // Update
+        final updatedPost = widget.postToEdit!.copyWith(
+          content: text,
+          imageUrl: imageUrl,
+          videoUrl: videoUrl,
+        );
+        await firestoreService.updatePost(updatedPost);
+    } else {
+      // Create
       final newPost = PostModel(
         id: '', // Firestore will generate
         userId: user.uid,
@@ -102,9 +133,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         videoUrl: videoUrl,
         createdAt: DateTime.now(),
       );
-
-      final FirestoreService firestoreService = FirestoreService();
       await firestoreService.createPost(newPost);
+    }
       
       if (mounted) {
         Navigator.pop(context, true);
@@ -128,13 +158,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       backgroundColor: AppColors.primaryDark,
       appBar: AppBar(
         backgroundColor: AppColors.cardSurface,
-        title: Text("Create Post", style: AppTextStyles.bodyMedium),
+        title: Text(widget.postToEdit != null ? "Edit Post" : "Create Post", style: AppTextStyles.bodyMedium),
         actions: [
           TextButton(
             onPressed: _isPosting ? null : _submitPost,
             child: _isPosting 
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text("Post", style: AppTextStyles.bodyMedium.copyWith(color: AppColors.accentBlue)),
+                : Text(widget.postToEdit != null ? "Update" : "Post", style: AppTextStyles.bodyMedium.copyWith(color: AppColors.accentBlue)),
           )
         ],
       ),
@@ -167,6 +197,43 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   ),
                 ],
               ),
+              
+            if (_selectedImage == null && _existingImageUrl != null)
+              Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(_existingImageUrl!, height: 200, fit: BoxFit.cover),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => setState(() => _existingImageUrl = null),
+                  ),
+                ],
+              ),
+
+              if (_selectedVideo == null && _existingVideoUrl != null)
+                Stack(
+                 alignment: Alignment.topRight,
+                 children: [
+                     Container(
+                       height: 200,
+                       width: double.infinity,
+                       decoration: BoxDecoration(
+                         color: Colors.black,
+                         borderRadius: BorderRadius.circular(12),
+                       ),
+                       child: const Center(
+                         child: Icon(Icons.play_circle_outline, color: Colors.white, size: 50),
+                       ),
+                     ),
+                   IconButton(
+                     icon: const Icon(Icons.close, color: Colors.white),
+                     onPressed: () => setState(() => _existingVideoUrl = null),
+                   ),
+                 ],
+               ),
 
              if (_selectedVideo != null && _videoController != null && _videoController!.value.isInitialized)
               Stack(

@@ -86,15 +86,52 @@ class _MatchesScreenState extends State<MatchesScreen> {
               matchProvider.loadMatches();
             },
             color: AppColors.accentBlue,
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: matches.length,
-              itemBuilder: (context, index) {
-                return Padding(
+              children: [
+                // Match of the Day Section
+                if (matchProvider.matchOfTheDay != null) ...[
+                  Row(
+                    children: [
+                       const Icon(Icons.star, color: AppColors.accentBlue, size: 20),
+                       const SizedBox(width: 8),
+                       Text(
+                        'MATCH OF THE DAY',
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  MatchCard(match: matchProvider.matchOfTheDay!),
+                  const SizedBox(height: 24),
+                  if (matches.isNotEmpty)
+                    Text(
+                      'ALL MATCHES',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Live Matches List
+                ...matches.map((match) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
-                  child: MatchCard(match: matches[index]),
-                );
-              },
+                  child: MatchCard(match: match),
+                )),
+
+                if (matches.isEmpty && matchProvider.matchOfTheDay == null)
+                   EmptyState(
+                    icon: Icons.sports_soccer,
+                    title: 'No Matches Today',
+                    description: 'Check back later for live action',
+                  ),
+              ],
             ),
           );
         },
