@@ -7,6 +7,7 @@ import '../../data/models/message_model.dart';
 import '../../data/models/lineup_model.dart'; // Import
 import '../../providers/chat_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/firestore_service.dart'; // Import
 import '../../services/api_service.dart'; // Import
 import '../../utils/themes/app_colors.dart';
 import '../../utils/themes/text_styles.dart';
@@ -43,6 +44,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   bool _isLoadingLineups = false;
   late MatchModel _match; // Local state for match (to allow updates)
   Timer? _timer;
+  final FirestoreService _firestoreService = FirestoreService();
   final ApiService _apiService = ApiService();
 
   @override
@@ -68,21 +70,22 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   Future<void> _refreshMatchData() async {
     try {
-      // Currently we don't have single match API. 
-      // We fetch all live matches and find ours. Inefficient but works for MVP.
-      final liveMatches = await _apiService.getLiveMatches();
-      final updatedMatch = liveMatches.firstWhere(
-        (m) => m.id == widget.match.id, 
-        orElse: () => _match // Keep old if not found (e.g. finished)
-      );
-       
-      if (mounted && updatedMatch != _match) { // Simplified equality check (might need id check or deep equality if instances differ)
-        // MatchModel logic: if fields differ. 
-        // Equatable isn't used, assuming fresh object.
-        // Let's just set state.
-        setState(() {
-          _match = updatedMatch;
-        });
+      // Fetch single match doc from Firestore
+      final docSnapshot = await _firestoreService.firestore
+          .collection('matches')
+          .doc(widget.match.id)
+          .get();
+
+      if (docSnapshot.exists && mounted) {
+        final updatedMatch = MatchModel.fromMap(docSnapshot.data()!);
+        // Add ID if missing (fromMap might handle it but being safe)
+        final matchWithId = updatedMatch.copyWith(id: docSnapshot.id);
+        
+        if (_match != matchWithId) {
+             setState(() {
+              _match = matchWithId;
+            });
+        }
       }
     } catch (e) {
       debugPrint("Error refreshing match data: $e");

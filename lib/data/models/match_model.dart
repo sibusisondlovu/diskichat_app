@@ -66,7 +66,7 @@ class MatchModel {
       scoreHome: map['scoreHome'] ?? 0,
       scoreAway: map['scoreAway'] ?? 0,
       venue: map['venue'],
-      apiMatchId: map['apiMatchId'],
+      apiMatchId: map['apiMatchId']?.toString(),
       aiPrediction: map['aiPrediction'],
       fanCount: map['fanCount'] ?? 0,
       elapsedTime: map['elapsedTime'],
